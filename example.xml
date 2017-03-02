@@ -1,0 +1,34 @@
+<xml version="1.0" encoding="UTF-8">
+<xml_catalog date="2017-02-28 14:45" datetime="1488282303">
+	<shop>
+		<name>Гала-Центр</name>
+		<url>http://galacentre.ru</url>
+		<categories>
+			<category id="14">Посуда и кухонные принадлежности</category>
+			<category id="2100" parentId="14" >Посуда для приготовления</category>
+			<category id="2054" parentId="2100" >Крышки стекло</category>
+        </categories>
+	</shop>
+	<offers>
+		<offer id="1VXT" articul="889-193" available="false" dateupdate="">
+			<categoryId>2186</categoryId>
+			<picture>http://image.galacentre.ru/1VXT.jpg</picture>
+			<name>Нож для мясорубки, металл, d4,8см</name>
+			<param name="price_base">14.54</param>
+			<param name="min">20</param>
+			<param name="box">1500</param>
+			<param name="brand"></param>
+			<param name="store_ekb">2</param>
+		</offer>
+		<offer id="1W15" articul="886-313" available="false" dateupdate="">
+			<categoryId>1714</categoryId>
+			<picture>http://image.galacentre.ru/1W15.jpg</picture>
+			<name>Ситечко для чайника</name>
+			<param name="price_base">6.98</param>
+			<param name="min">50</param>
+			<param name="box">2000</param>
+			<param name="brand"></param>
+			<param name="store_ekb">2</param>
+		</offer>
+	</offers>
+</xml_catalog>
