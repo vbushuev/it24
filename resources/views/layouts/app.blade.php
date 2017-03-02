@@ -12,6 +12,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/it24.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
     <script>
@@ -86,5 +87,6 @@
     @if(isset($panel))
     @include('scripts.'.$panel)
     @endif
+    <script src="{{ asset('js/it24.js') }}"></script>
 </body>
 </html>

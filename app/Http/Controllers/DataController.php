@@ -29,20 +29,62 @@ class DataController extends Controller{
                 "errors.title as error",
                 "errors.id as code"
                 //,"(select count(*) from uploads where transaction_id = id) as total_counted"
-            )->get();
+            )
+            //->where('upload_transactions.id','<=',$rq->input("f","99999999"))
+            ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
-    public function supplies(Request $rq){
-        $res = DB::table("suppliers")->get();
+    public function uploadsProgress(Request $rq){
+        $res = DB::table("uploads")
+            ->where('transaction_id','=',$rq->input('tr_id',0))
+            ->select(DB::raw('count(uploads.id) as total','sum(amount) as sum'))
+            ->first();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function suppliers(Request $rq){
+        $res = DB::table("suppliers")
+            ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function brands(Request $rq){
+        $res = DB::table("brands")
+            ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function goods(Request $rq){
-        $res = DB::table("goods")
-            ->join('suppliers','suppliers.id','=','goods.supply_id')
+        $from = $rq->input("f",0);
+        $sel = DB::table("view_goods");
+        $sel = DB::table('goods')
             ->join('brands','brands.id','=','goods.brand_id')
+            ->join('suppliers','suppliers.id','=','goods.supply_id')
             ->join('goods_categories','goods_categories.good_id','=','goods.id')
-            ->join('categories','goods_categories.category_id','=','categories.id')
-            ->get();
+            ->join('categories','categories.id','=','goods_categories.category_id')
+            ->select('goods.id AS id',
+                'goods.sid AS sid',
+	            'goods.timestamp AS timestamp',
+	            'goods.title AS title',
+	            'goods.sku AS sku',
+	            'goods.description AS description',
+	            'goods.certificate AS certificate',
+	            'goods.barcode AS barcode',
+	            'goods.image AS image',
+	            'goods.unit AS unit',
+	            'goods.pack AS pack',
+	            'goods.weight AS weight',
+	            'goods.width AS width',
+	            'goods.depth AS depth',
+	            'goods.height AS height',
+	            'goods.brand_id AS brand_id',
+	            'goods.supply_id AS supply_id',
+	            'goods.price AS price',
+	            'goods_categories.category_id AS category_id',
+	            'brands.title AS brand',
+	            'categories.title AS category',
+                'suppliers.title AS supplier')
+            ->orderBy('goods.id');
+        if(!empty($rq->input("brand_id","")))$sel->where("goods.brand_id","=",$rq->input("brand_id"));
+        if(!empty($rq->input("supply_id","")))$sel->where("goods.supply_id","=",$rq->input("supply_id"));
+        $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
 }

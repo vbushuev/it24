@@ -23,6 +23,22 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home',['panel'=>'uploads']);
+        return view('pages.uploads',['panel'=>'uploads']);
+    }
+    public function goods()
+    {
+        return view('pages.goods',['panel'=>'goods']);
+    }
+    public function suppliers()
+    {
+        return view('pages.suppliers',['panel'=>'suppliers']);
+    }
+    public function users()
+    {
+        return view('pages.users',['panel'=>'users']);
+    }
+    public function downloads()
+    {
+        return view('pages.downloads',['panel'=>'downloads']);
     }
 }

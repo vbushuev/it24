@@ -30,7 +30,8 @@ class Product extends Common{
                 "unit" => $this->unit,
                 "certificate" => $this->certificate,
                 "description" => $this->description,
-                "pack"=>$this->pack
+                "pack"=>$this->pack,
+                "price"=>$this->amount
             ]);
         }
         else{
@@ -38,6 +39,7 @@ class Product extends Common{
             $brand = DB::table('brands')->where('title','=',$this->brand)->first();
             $this->_properties["brand_id"] = (!isset($brand->id))?DB::table('brands')->insertGetId(['title'=>$this->brand]):$brand->id;
             $ins = $this->_properties;
+            $ins["price"] = $ins["amount"];
             unset($ins["external_category_id"]);
             unset($ins["image_url"]);
             unset($ins["quantity"]);
@@ -46,6 +48,7 @@ class Product extends Common{
             unset($ins["schedule_id"]);
             unset($ins["dateupdate"]);
             unset($ins["transaction_id"]);
+
             $this->_properties["id"]=DB::table('goods')->insertGetId($ins);
             //check category
             if($this->external_category_id>0){
@@ -73,6 +76,12 @@ class Product extends Common{
         ]);
     }
     protected function loadImage($url,$f){
-        $this->save2file($f,$this->fetch($url));
+        try{
+            $this->save2file($f,$this->fetch($url));
+        }
+        catch(\Exception $e){
+            Log::error($e);
+        }
+
     }
 }

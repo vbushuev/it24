@@ -1,3 +1,4 @@
+drop table goods;
 CREATE TABLE `goods` (
 	`id` bigint(20) NOT NULL AUTO_INCREMENT,
 	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -19,23 +20,7 @@ CREATE TABLE `goods` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `suppliers` (
-	`id` bigint(20) NOT NULL AUTO_INCREMENT,
-	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`title` varchar(256) NOT NULL,
-	`code` varchar(15) NOT NULL,
-	`inn` varchar(12) NOT NULL UNIQUE,
-	`link` varchar(256),
-	PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `brands` (
-	`id` bigint(20) NOT NULL AUTO_INCREMENT,
-	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`title` varchar(128) NOT NULL UNIQUE,
-	PRIMARY KEY (`id`)
-);
-
+drop table categories;
 CREATE TABLE `categories` (
 	`id` bigint(20) NOT NULL AUTO_INCREMENT,
 	`timestap` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -46,6 +31,7 @@ CREATE TABLE `categories` (
 	PRIMARY KEY (`id`)
 );
 
+drop TABLE `goods_categories`;
 CREATE TABLE `goods_categories` (
 	`id` bigint NOT NULL,
 	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -54,6 +40,7 @@ CREATE TABLE `goods_categories` (
 	PRIMARY KEY (`id`)
 );
 
+drop TABLE `uploads`;
 CREATE TABLE `uploads` (
 	`id` bigint(20) NOT NULL AUTO_INCREMENT,
 	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,49 +57,29 @@ CREATE TABLE `uploads` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `protocols` (
-	`id` bigint(20) NOT NULL AUTO_INCREMENT,
-	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`title` varchar(128) NOT NULL UNIQUE,
-	PRIMARY KEY (`id`)
-);
 
-CREATE TABLE `schedules` (
-	`id` bigint(20) NOT NULL AUTO_INCREMENT,
-	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`protocol_id` bigint(20) NOT NULL,
-	`supply_id` bigint(20) NOT NULL,
-	`period` int(5) NOT NULL,
-	`last` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `upload_statuses` (
-	`id` bigint(20) NOT NULL AUTO_INCREMENT,
-	`title` varchar(128) NOT NULL UNIQUE,
-	PRIMARY KEY (`id`)
-);
-
+ALTER TABLE `goods` ADD INDEX(`supply_id`);
+ALTER TABLE `goods` ADD INDEX(`brand_id`);
 ALTER TABLE `goods` ADD CONSTRAINT `goods_fk0` FOREIGN KEY (`supply_id`) REFERENCES `suppliers`(`id`);
-
 ALTER TABLE `goods` ADD CONSTRAINT `goods_fk1` FOREIGN KEY (`brand_id`) REFERENCES `brands`(`id`);
 
-ALTER TABLE `categories` ADD CONSTRAINT `categories_fk0` FOREIGN KEY (`parent_id`) REFERENCES `categories`(`id`);
 
+ALTER TABLE `goods` ADD INDEX(`supply_id`);
+ALTER TABLE `goods` ADD INDEX(`parent_id`);
+ALTER TABLE `goods` ADD INDEX(`external_id`,'supply_id');
+ALTER TABLE `categories` ADD CONSTRAINT `categories_fk0` FOREIGN KEY (`parent_id`) REFERENCES `categories`(`id`);
 ALTER TABLE `categories` ADD CONSTRAINT `categories_fk1` FOREIGN KEY (`supply_id`) REFERENCES `suppliers`(`id`);
 
 ALTER TABLE `goods_categories` ADD CONSTRAINT `goods_categories_fk0` FOREIGN KEY (`good_id`) REFERENCES `goods`(`id`);
 
 ALTER TABLE `goods_categories` ADD CONSTRAINT `goods_categories_fk1` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`);
 
-ALTER TABLE `uploads` ADD CONSTRAINT `uploads_fk0` FOREIGN KEY (`supply_id`) REFERENCES `suppliers`(`id`);
+ALTER TABLE uploads
+  ADD CONSTRAINT uploads_fk1 FOREIGN KEY (good_id) REFERENCES goods (id),
+  ADD CONSTRAINT uploads_fk2 FOREIGN KEY (transaction_id) REFERENCES upload_transactions (id);
 
-ALTER TABLE `uploads` ADD CONSTRAINT `uploads_fk1` FOREIGN KEY (`good_id`) REFERENCES `goods`(`id`);
-
-ALTER TABLE `uploads` ADD CONSTRAINT `uploads_fk2` FOREIGN KEY (`schedule_id`) REFERENCES `schedules`(`id`);
-
-ALTER TABLE `uploads` ADD CONSTRAINT `uploads_fk3` FOREIGN KEY (`status`) REFERENCES `upload_statuses`(`id`);
-
-ALTER TABLE `schedules` ADD CONSTRAINT `schedules_fk0` FOREIGN KEY (`protocol_id`) REFERENCES `protocols`(`id`);
-
-ALTER TABLE `schedules` ADD CONSTRAINT `schedules_fk1` FOREIGN KEY (`supply_id`) REFERENCES `suppliers`(`id`);
+ALTER TABLE `upload_transactions`
+    ADD CONSTRAINT `upload_transactions_fk01` FOREIGN KEY (`schedule_id`) REFERENCES `schedules` (`id`),
+    ADD CONSTRAINT `upload_transactions_fk02` FOREIGN KEY (`supply_id`) REFERENCES `suppliers` (`id`),
+    ADD CONSTRAINT `upload_transactions_fk03` FOREIGN KEY (`status_id`) REFERENCES `upload_statuses` (`id`),
+    ADD CONSTRAINT `upload_transactions_fk04` FOREIGN KEY (`error_id`) REFERENCES `errors` (`id`);

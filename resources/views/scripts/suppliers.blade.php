@@ -1,5 +1,6 @@
 <script>
     function _contentLoader(d){
+        console.debug(d);return;
         for(var i = 0;i<d.length;++i){
             var p=d[i], dateExp = /(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,status_ico='<i class="fa fa-2x fa-circle-o-notch" aria-hidden="true"></i>';
             switch(p.status){
@@ -8,7 +9,7 @@
                 case "inprogress":status_ico='<i class="fa fa-spinner fa-pulse fa-2x fa-fw" aria-hidden="true"></i>';break;
             }
             s= '<div class="row item status-'+p.status+'" data-rel="'+p.id+'">';
-            s+= '<div class="col-md-1">'+p.id+'</div>';
+            s+= '<div class="col-md-1">'+p.title+'</div>';
             s+= '<div class="col-md-2 '+p.status+'">'+status_ico+'<div class="error-message"><h5>'+p.error+'</h5>'+p.message+'</div></div>';
             s+= '<div class="col-md-2">'+p.title+'</div>';
             s+= '<div class="col-md-2">'+p.start.replace(/(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,"$3.$2.$1")+'</div>';
@@ -17,12 +18,11 @@
             s+= '<div class="col-md-1 total">'+p.total+'</div>';
             s+= '</div>';
             $("#js-container").append(s);
-            page.filters.data.f++;
         }
     }
-
     var all=true;
     setInterval(function(){
+        console.debug("interval");
         var $items = all?$(".item"):$(".item.status-inprogress");
         $items.each(function(){
             var $t = $(this);
@@ -32,10 +32,10 @@
                 type:"GET",
                 dataType:"json",
                 success:function(d){
-                    $t.find(".total").text(d.total);
+                    $t.find(".total").html(d.total);
+                    all=false;
                 }
             });
         });
-        all=false;
-    },1400);
+    },10400);
 </script>

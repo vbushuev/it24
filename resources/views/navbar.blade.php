@@ -14,10 +14,10 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="/home">Загрузки поставщиков <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Выгрузки клиентам</a></li>
-                <li><a href="#">Поставщики</a></li>
-                <li><a href="#">Клиенты</a></li>
+                <li @if(isset($panel)&&($panel=='uploads'))class="active"@endif><a href="/panel">Загрузки поставщиков @if(isset($panel)&&($panel=='uploads'))<span class="sr-only">(current)</span>@endif</a></li>
+                <li @if(isset($panel)&&($panel=='downloads'))class="active"@endif><a href="/panel/downloads">Выгрузки клиентам @if(isset($panel)&&($panel=='downloads'))<span class="sr-only">(current)</span>@endif</a></li>
+                <li @if(isset($panel)&&($panel=='suppliers'))class="active"@endif><a href="/panel/suppliers">Поставщики @if(isset($panel)&&($panel=='suppliers'))<span class="sr-only">(current)</span>@endif</a></li>
+                <li @if(isset($panel)&&($panel=='users'))class="active"@endif><a href="/panel/users">Клиенты @if(isset($panel)&&($panel=='users'))<span class="sr-only">(current)</span>@endif</a></li>
                 <!--<li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -38,7 +38,7 @@
                 <button type="submit" class="btn btn-default">Submit</button>
             </form>-->
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">Товары</a></li>
+                <li @if(isset($panel)&&($panel=='goods'))class="active"@endif><a href="/panel/goods">Товары @if(isset($panel)&&($panel=='goods'))<span class="sr-only">(current)</span>@endif</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Настройки <span class="caret"></span></a>
                     <ul class="dropdown-menu">

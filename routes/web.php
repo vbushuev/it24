@@ -18,7 +18,13 @@ Auth::routes();
 
 Route::get('/panel', 'HomeController@index');
 Route::get('/panel/goods', 'HomeController@goods');
-Route::get('/data/supplies', 'DataController@supplies');
+Route::get('/panel/suppliers', 'HomeController@suppliers');
+Route::get('/panel/users', 'HomeController@users');
+Route::get('/panel/downloads', 'HomeController@downloads');
+
+Route::get('/data/suppliers', 'DataController@suppliers');
 Route::get('/data/uploads', 'DataController@uploads');
+Route::get('/data/uploads/progress', 'DataController@uploadsProgress');
 Route::get('/data/goods', 'DataController@goods');
 Route::get('/data/categories', 'DataController@categories');
+Route::get('/data/brands', 'DataController@brands');

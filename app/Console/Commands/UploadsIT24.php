@@ -49,6 +49,7 @@ class UploadsIT24 extends Command
             ->orderBy('schedules.last','asc')
             ->get();
         foreach ($jobs as $job) {
+            DB::table('schedules')->where('id','=',$job->schedule_id)->update(['last'=>date('Y-m-d H:i:s')]);
             if(!in_array($job->protocol_id,[1]))continue;
             $job_id = DB::table('upload_transactions')->insertGetId(["schedule_id"=>$job->schedule_id,"supply_id"=>$job->supply_id,"status_id"=>1,"error_id"=>"0"]);
             try{
@@ -129,7 +130,6 @@ class UploadsIT24 extends Command
                 Log::debug($e);
                 $error_id =$e->getCode();
                 $error_id =(preg_match("/^\d+$/",$error_id)&&$error_id<2)?$error_id:2;
-                print_r($error_id);
                 DB::table('upload_transactions')->where("id","=",$job_id)->update([
                     "status_id"=>2,
                     "time_end"=>date("Y-m-d H:i:s"),
@@ -137,6 +137,7 @@ class UploadsIT24 extends Command
                     "error_id"=>$error_id
                 ]);
             }
+
         }
         //file_put_contents("catalog.xml",$out);
 

@@ -1,0 +1,39 @@
+// out: it24.css, compress: true
+.heading
+    padding: .2em .6em;
+    vertical-align: middle;
+    font-weight: 600;
+.item
+    line-height: 4em;
+    //height:4em;
+    cursor: pointer;
+    transition: all 0.4s ease-out;
+    font-size: 90%;
+    position: relative;
+    .multirows
+        line-height: 1em;
+        height: 4em;
+        margin: 0;
+        display: inline-block;
+        padding:.4em .2em;
+    div > .error-message
+        display: none;
+        position:absolute;
+        top:1em;
+        left:3em;
+        transition: all .4s ease-out
+        padding 1em;
+        width 42rem;
+        line-height: 1em;
+        background-color: #fff;
+        color:red;
+        border: dotted 1px red;
+        z-index: 999;
+    div.failed:hover > .error-message
+        display: block;
+.item:hover
+    background-color: rgba(0,0,0,.1);
+.item.status-failed
+    background-color: rgba(255,0,0,.2);
+.item.status-failed:hover
+    background-color: rgba(255,0,0,.1);
