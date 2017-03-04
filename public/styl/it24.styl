@@ -1,8 +1,13 @@
-// out: it24.css, compress: true
+// out: ../css/it24.css, compress: true
 .heading
     padding: .2em .6em;
     vertical-align: middle;
     font-weight: 600;
+.clearfix
+    clear:both;
+    height:1rem;
+    display: block;
+    width: 100%;
 .item
     line-height: 4em;
     //height:4em;
@@ -37,3 +42,16 @@
     background-color: rgba(255,0,0,.2);
 .item.status-failed:hover
     background-color: rgba(255,0,0,.1);
+.modal
+    .title
+        font-size: 1.4em;
+        font-weight: 400;
+    .supplier-title
+        font-size: 110%;
+        font-weight: 600;
+    .input-group
+        margin-bottom: 1rem;
+.input-group-addon
+    min-width: 14rem;
+.modal-header h5
+    display inline-block

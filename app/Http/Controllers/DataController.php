@@ -41,9 +41,37 @@ class DataController extends Controller{
             ->first();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
+    public function supplierupdate(Request $rq){
+        $res = DB::table('suppliers')->where("id","=",$rq->input("id",-1))
+            ->update([
+                "title"=>$rq->input("title"),
+                "link"=>$rq->input("link"),
+                "code"=>$rq->input("code"),
+                "inn"=>$rq->input("inn")
+            ]);
+        $res = DB::table('schedules')->where("supply_id","=",$rq->input("id",-1))
+                ->update(["period"=>$rq->input("period")]);
+
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
     public function suppliers(Request $rq){
-        $res = DB::table("suppliers")
-            ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        $sel = DB::table("suppliers")
+            ->join("schedules","schedules.supply_id","=","suppliers.id")
+            ->join("protocols","schedules.protocol_id","=","protocols.id")
+            ->select(
+                'suppliers.id',
+                'suppliers.title',
+                'suppliers.inn',
+                'suppliers.code',
+                'suppliers.link',
+                'schedules.id as schedule_id',
+                'schedules.period',
+                'schedules.last',
+                'protocols.id as protocol_id',
+                'protocols.title as protocol'
+            );
+        $this->filters($rq,$sel);
+        $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function brands(Request $rq){
@@ -86,5 +114,9 @@ class DataController extends Controller{
         if(!empty($rq->input("supply_id","")))$sel->where("goods.supply_id","=",$rq->input("supply_id"));
         $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    protected function filters(Request $rq,&$sel){
+        if(!empty($rq->input("brand_id","")))$sel->where("brand_id","=",$rq->input("brand_id"));
+        if(!empty($rq->input("supply_id","")))$sel->where("supply_id","=",$rq->input("supply_id"));
     }
 }

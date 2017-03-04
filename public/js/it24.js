@@ -55,6 +55,11 @@ var page={
         page.filters.clear();
         page.load();
     },
+    reload:function(){
+        page.filters.data.f-=page.filters.data.l;
+        page.filters.data.f=(page.filters.data.f<page.filters.data.l)?0:page.filters.data.f;
+        page.load();
+    },
     load:function(){
         $.ajax({
             url:$("#js-container").attr("data-ref"),
@@ -69,6 +74,30 @@ var page={
             },
             complete:function(){lock=false;},
         });
+    },
+    form:{
+        submit:function(){
+            if(!arguments.length)return;
+            var p=arguments[0],args = {};
+            $(p.form+' input').each(function(){
+                var val = $(this).val();
+                //todo add validate data
+                //todo add check required
+                args[$(this).attr("name")]=val;
+            });
+            console.debug(args);
+            $.ajax({
+                url:$(p.form).attr("data-rel"),
+                dataType:"json",
+                data:args,
+                success:function(d){
+                    console.debug(d);
+                    $(p.form).modal('hide');
+                    document.location.reload();
+                    //page.reload();
+                }
+            });
+        }
     }
 }
 page.load();
