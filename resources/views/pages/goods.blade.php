@@ -11,7 +11,7 @@
                 <div class="container-fluid">
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#filters-panel" aria-expanded="false">
                                     <span class="sr-only">Toggle navigation</span>
                                     <span class="icon-bar"></span>
                                     <span class="icon-bar"></span>
@@ -21,8 +21,15 @@
                     </div>
 
                     <!-- Collect the nav links, forms, and other content for toggling -->
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <div class="collapse navbar-collapse" id="filters-panel">
                         <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a href="javascript:0" class="dropdown-toggle categories" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Категории <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="javascript:{page.filters.clear('category_id');page.load();}">Очистить</a></li>
+                                    <li role="separator" class="divider"></li>
+                                </ul>
+                            </li>
                             <li class="dropdown">
                                 <a href="javascript:0" class="dropdown-toggle brands" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Бренды <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -37,12 +44,15 @@
                                     <li role="separator" class="divider"></li>
                                 </ul>
                             </li>
+
+                            <li>
+
+                            </li>
                         </ul>
-                        <form class="navbar-form navbar-left">
+                        <form class="navbar-form navbar-left" role="search">
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="поиск">
+                                <input type="text" class="form-control search" placeholder="поиск" onkeyup="{page.filters.search($(this));}" name="search">
                             </div>
-                            <button type="submit" class="btn btn-default">Поиск</button>
                         </form>
                     </div>
                     <!-- /.navbar-collapse -->

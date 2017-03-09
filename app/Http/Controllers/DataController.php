@@ -10,11 +10,21 @@ class DataController extends Controller{
     public function __construct(){
         //$this->middleware('auth');
     }
+    protected function filters(Request $rq,&$sel,$table=""){
+        $t = (!empty($table)?$table.".":"");
+        if(!empty($rq->input("category_id","")))$sel->whereIn("categories.id",$rq->input("category_id"));
+        if(!empty($rq->input("brand_id","")))$sel->where("brand_id","=",$rq->input("brand_id"));
+        if(!empty($rq->input("supply_id","")))$sel->where("supply_id","=",$rq->input("supply_id"));
+        //if(!empty($rq->input("date","")))$sel->where(DB::raw("date_format(date(".(!empty($table)?$table.".":"")."timestamp),'%Y-%m-%d') = '".$rq->input("date")."'"));
+        if(!empty($rq->input("date","")))$sel->whereDate((!empty($table)?$table.".":"")."timestamp",'=',$rq->input("date"));
+        if(!empty($rq->input("error","")))$sel->where((!empty($table)?$table.".":"")."error_id",'>','0');
+        if(!empty($rq->input("s","")))$sel->where($t.'title','like','%'.$rq->input("s").'%');
+    }
     public function index(Request $rq){
         return response()->json([],200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function uploads(Request $rq){
-        $res = DB::table("upload_transactions")
+        $sel= DB::table("upload_transactions")
             ->join("upload_statuses","upload_statuses.id","=","upload_transactions.status_id")
             ->join("errors","errors.id","=","upload_transactions.error_id")
             ->join("suppliers","suppliers.id","=","upload_transactions.supply_id")
@@ -29,9 +39,10 @@ class DataController extends Controller{
                 "errors.title as error",
                 "errors.id as code"
                 //,"(select count(*) from uploads where transaction_id = id) as total_counted"
-            )
-            //->where('upload_transactions.id','<=',$rq->input("f","99999999"))
-            ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+            );
+        $this->filters($rq,$sel,"upload_transactions");
+
+        $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function uploadsProgress(Request $rq){
@@ -79,6 +90,35 @@ class DataController extends Controller{
             ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
+    public function categories(Request $rq){
+        $sel = DB::table("categories")->orderBy('parent_id','asc')->whereNull("parent_id")->get();
+        $res=[];
+        foreach ($sel as $r) {
+            $res[$r->id] = (array)$r;
+            $res[$r->id]["childs"]=$this->recursiveCategories($r->id);
+        }
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    protected function recursiveCategories($id){
+        if(empty($id)||is_null($id))return [];
+        $res = [];
+        $rows = DB::table("categories")->orderBy('parent_id','asc')->where("parent_id",'=',$id)->get();
+        foreach ($rows as $r) {
+            $res[$r->id] = (array)$r;
+            $res[$r->id]["childs"]=$this->recursiveCategories($r->id);
+        }
+        return $res;
+    }
+    protected function getSubCategories($id){
+        if(empty($id)||is_null($id))return [];
+        $res = [];
+        $rows = DB::table("categories")->where("parent_id",'=',$id)->get();
+        foreach ($rows as $r) {
+            $res[] = $r->id;
+            $res=array_merge($res,$this->getSubCategories($r->id));
+        }
+        return $res;
+    }
     public function goods(Request $rq){
         $from = $rq->input("f",0);
         $sel = DB::table("view_goods");
@@ -110,13 +150,9 @@ class DataController extends Controller{
 	            'categories.title AS category',
                 'suppliers.title AS supplier')
             ->orderBy('goods.id');
-        if(!empty($rq->input("brand_id","")))$sel->where("goods.brand_id","=",$rq->input("brand_id"));
-        if(!empty($rq->input("supply_id","")))$sel->where("goods.supply_id","=",$rq->input("supply_id"));
+        $this->filters($rq,$sel,"goods");
+        Log::debug("SQL: ".$sel->toSql());
         $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-    }
-    protected function filters(Request $rq,&$sel){
-        if(!empty($rq->input("brand_id","")))$sel->where("brand_id","=",$rq->input("brand_id"));
-        if(!empty($rq->input("supply_id","")))$sel->where("supply_id","=",$rq->input("supply_id"));
     }
 }

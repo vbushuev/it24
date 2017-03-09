@@ -5,10 +5,15 @@
             var p=d[i], dateExp = /(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,status_ico='<i class="fa fa-2x fa-circle-o-notch" aria-hidden="true"></i>',
                 period = p.period;
             switch(period){
+                case 1440:
                 case "1440":period="Раз в день";break;
+                case 240:
                 case "240":period="Каждые 4 часа";break;
+                case 120:
                 case "120":period="Каждые 2 часа";break;
+                case 60:
                 case "60":period="Каждый час";break;
+                case 30:
                 case "30":period="Каждые полчаса";break;
             }
             s= '<div class="row item" data-rel="'+p.id+'">';
@@ -50,7 +55,7 @@
             s+= '   </div>';
             s+= '</div>';
             s+= '<div class="modal-footer">';
-            s+= '   <button type="button" class="btn btn-primary" onclick="javascript:page.form.submit({form:\'#supplier_'+p.id+'\'})">Обновить</button>';
+            s+= '   <button type="button" class="btn btn-primary" onclick="javascript:page.submit({form:\'#supplier_'+p.id+'\'})">Обновить</button>';
             s+= '   <button type="button" class="btn btn-default" data-dismiss="modal">Отменить</button>';
             s+= '</div>';
             s+= '</div></div></div><!--end .modal-->';
