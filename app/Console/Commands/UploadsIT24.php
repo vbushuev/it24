@@ -7,6 +7,8 @@ use Log;
 use DB;
 use it24\Product as Product;
 use it24\Category as Category;
+use it24\utoys\Parser as utoys;
+use it24\galacenter\Parser as galacenter;
 
 class UploadsIT24 extends Command
 {
@@ -43,9 +45,11 @@ class UploadsIT24 extends Command
     {
         //select schedules.id as schedule_id,schedules.period, schedules.last,suppliers.title,schedules.supply_id,suppliers.link from schedules join suppliers on suppliers.id=schedules.supply_id where date_add(schedules.last,INTERVAL period MINUTE)<=now();
         $jobs = DB::table('schedules')
-            ->select('schedules.id as schedule_id','schedules.period','schedules.last','suppliers.title','schedules.supply_id','schedules.protocol_id','suppliers.link')
+            ->select('schedules.id as schedule_id','schedules.period','schedules.last','suppliers.title','suppliers.code','schedules.supply_id','schedules.protocol_id','suppliers.link')
             ->join('suppliers','suppliers.id','=','schedules.supply_id')
-            ->whereRaw('date_add(schedules.last,INTERVAL period MINUTE) <= now()')
+
+            ->where('schedules.supply_id','=','2')
+            //->whereRaw('date_add(schedules.last,INTERVAL period MINUTE) <= now()')
             ->orderBy('schedules.last','asc')
             ->get();
         foreach ($jobs as $job) {
@@ -61,65 +65,11 @@ class UploadsIT24 extends Command
                     Log::error($e);
                     throw new \Exception("no-connection",1);
                 }
-                $cats = isset($xml->xml_catalog)?$xml->xml_catalog->shop->categories->category:((isset($xml->yml_catalog))?$xml->yml_catalog->shop->categories->category:null);
-                if(!isset($cats)&&!is_null($cats)){
-                    Log::error("No data in ".$job->title." ".$job->link);
-                    throw new \Exception("no-categories",2);
-                }
-                foreach($cats as $category){
-                    $a = [
-                        "external_id" =>$category["id"]->__toString(),
-                        "external_parent_id" =>isset($category["parentId"])?$category["parentId"]->__toString():null,
-                        "title" => $category->__toString(),
-                        "supply_id"=>$job->supply_id
-                    ];
-                    $o = new Category($a);
-                    $o->store();
-                }
-                $prods = isset($xml->xml_catalog)?$xml->xml_catalog->shop->offers->offer:$xml->yml_catalog->shop->offers->offer;
-                if(!isset($prods)&&!is_null($prods)){
-                    Log::error("No data in ".$job->title." ".$job->link);
-                    throw new \Exception("no-products",2);
-                }
-                //print_r($prods);
-                $total=0;
-                foreach ($prods as $item) {
-                    $a = [
-                        "transaction_id"=>$job_id,
-                        "supply_id"=>$job->supply_id,
-                        "sid"=>$item["id"]->__toString(),
-                        "sku"=>$item["articul"]->__toString(),
-                        "quantity"=>($item["available"]=="false")?"0":"0",
-                        "dateupdate"=>$item["dateupdate"]->__toString(),
-                        "external_category_id"=>$item->categoryId->__toString(),
-                        "title"=>$item->name->__toString(),
-                        "image_url"=>$item->picture->__toString(),
-                        "amount"=>"",
-                        "pack"=>"",
-                        "brand"=>"",
-                        "barcode"=>"",
-                        "depth"=>"",
-                        "width"=>"",
-                        "height"=>"",
-                        "weight"=>"",
-                        "unit"=>"",
-                        "certificate"=>"",
-                        "description"=>""
-                    ];
-                    foreach($item->param as $param){
-                        if($param['name'] == 'price_base')$a["amount"]=$param->__toString();
-                        else if($param['name'] == 'box')$a["pack"]=$param->__toString();
-                        else if($param['name'] == 'brand')$a["brand"]=$param->__toString();
-                        else if($param['name'] == 'quantity')$a["quantity"]=$param->__toString();
-                        else if($param['name'] == 'barcode')$a["barcode"]=$param->__toString();
-                        else if($param['name'] == 'leigh')$a["depth"]=$param->__toString();
-                        else if($param['name'] == 'width')$a["width"]=$param->__toString();
-                        else if($param['name'] == 'height')$a["height"]=$param->__toString();
-                    }
-                    $o = new Product($a);
-                    $o->store();
-                    $total++;
-                }
+                //Parser
+                $nm = "it24\\".$job->code."\\Parser";
+                $parser = new $nm;
+                $total = $parser->parse($xml,["job_id"=>$job_id,"job"=>$job]);
+
                 DB::table('upload_transactions')->where("id","=",$job_id)->update([
                     "status_id"=>3,
                     "total"=>$total,

@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('command:uploads')->everyMinute();
+        //$schedule->command('command:uploads')->everyMinute()->emailOutputTo('yanusdnd@inbox.ru');;
     }
 
     /**

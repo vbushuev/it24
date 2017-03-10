@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+
 use Log;
 use DB;
+use App\Schedule;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DataController extends Controller{
     public function __construct(){
@@ -13,12 +17,14 @@ class DataController extends Controller{
     protected function filters(Request $rq,&$sel,$table=""){
         $t = (!empty($table)?$table.".":"");
         if(!empty($rq->input("category_id","")))$sel->whereIn("categories.id",$rq->input("category_id"));
-        if(!empty($rq->input("brand_id","")))$sel->where("brand_id","=",$rq->input("brand_id"));
-        if(!empty($rq->input("supply_id","")))$sel->where("supply_id","=",$rq->input("supply_id"));
+        if(!empty($rq->input("brand_id","")))$sel->where($t."brand_id","=",$rq->input("brand_id"));
+        if(!empty($rq->input("supply_id","")))$sel->where($t."supply_id","=",$rq->input("supply_id"));
         //if(!empty($rq->input("date","")))$sel->where(DB::raw("date_format(date(".(!empty($table)?$table.".":"")."timestamp),'%Y-%m-%d') = '".$rq->input("date")."'"));
-        if(!empty($rq->input("date","")))$sel->whereDate((!empty($table)?$table.".":"")."timestamp",'=',$rq->input("date"));
-        if(!empty($rq->input("error","")))$sel->where((!empty($table)?$table.".":"")."error_id",'>','0');
+        if(!empty($rq->input("date","")))$sel->whereDate($t."timestamp",'=',$rq->input("date"));
+        if(!empty($rq->input("error","")))$sel->where($t."error_id",'>','0');
         if(!empty($rq->input("s","")))$sel->where($t.'title','like','%'.$rq->input("s").'%');
+        if(!empty($rq->input("n","")))$sel->where($t.'name','like','%'.$rq->input("n").'%');
+        if(!empty($rq->input("role","")))$sel->where($t.'role','=',$rq->input("role"));
     }
     public function index(Request $rq){
         return response()->json([],200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
@@ -33,6 +39,7 @@ class DataController extends Controller{
                 "upload_transactions.timestamp as start",
                 "upload_transactions.time_end as end",
                 "upload_transactions.total",
+                "upload_transactions.summary",
                 "upload_transactions.message",
                 "upload_statuses.title as status",
                 "suppliers.title",
@@ -48,7 +55,7 @@ class DataController extends Controller{
     public function uploadsProgress(Request $rq){
         $res = DB::table("uploads")
             ->where('transaction_id','=',$rq->input('tr_id',0))
-            ->select(DB::raw('count(uploads.id) as total','sum(amount) as sum'))
+            ->select(DB::raw('count(uploads.id) as total, sum(amount*quantity) as sum'))
             ->first();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
@@ -85,9 +92,66 @@ class DataController extends Controller{
         $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
+    public function schedules(Request $rq){
+        $sel = DB::table("download_schedules")
+            ->where('download_schedules.user_id','=',Auth::user()->id);
+        //$this->filters($rq,$sel);
+        $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function scheduleadd(Request $rq){
+        $res = Schedule::create($rq->all());
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function scheduleedit(Request $rq){
+        $d=$rq->all();
+        $res = Schedule::find($d["id"]);
+        $res->fill($d);
+        $res->save();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function downloads(Request $rq){
+        $sel = DB::table("download_transactions")
+            ->join('download_schedules','download_schedules.id','=','download_transactions.schedule_id')
+            ->where('download_schedules.user_id','=',Auth::user()->id);
+        $this->filters($rq,$sel);
+        $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
     public function brands(Request $rq){
         $res = DB::table("brands")
             ->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function roles(Request $rq){
+        $res = DB::table("roles")->get();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function users(Request $rq){
+        $sel = DB::table("users");
+        $this->filters($rq,$sel,'users');
+        $res=$sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function userdel(Request $rq){
+        $res=[];
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function useredit(Request $rq){
+        $data = $rq->all();
+        $res = User::find($data["id"]);
+        $res->fill($data);
+        $res->save();
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function useradd(Request $rq){
+        $data = $rq->all();
+        $res = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'role' => $data["role"]
+        ]);
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function categories(Request $rq){
@@ -106,16 +170,6 @@ class DataController extends Controller{
         foreach ($rows as $r) {
             $res[$r->id] = (array)$r;
             $res[$r->id]["childs"]=$this->recursiveCategories($r->id);
-        }
-        return $res;
-    }
-    protected function getSubCategories($id){
-        if(empty($id)||is_null($id))return [];
-        $res = [];
-        $rows = DB::table("categories")->where("parent_id",'=',$id)->get();
-        foreach ($rows as $r) {
-            $res[] = $r->id;
-            $res=array_merge($res,$this->getSubCategories($r->id));
         }
         return $res;
     }

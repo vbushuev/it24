@@ -2,26 +2,14 @@
     function _contentLoader(d){
         console.debug(d);
         for(var i = 0;i<d.length;++i){
-            var p=d[i], dateExp = /(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,status_ico='<i class="fa fa-2x fa-circle-o-notch" aria-hidden="true"></i>',
-                period = p.period;
-            switch(period){
-                case 1440:
-                case "1440":period="Раз в день";break;
-                case 240:
-                case "240":period="Каждые 4 часа";break;
-                case 120:
-                case "120":period="Каждые 2 часа";break;
-                case 60:
-                case "60":period="Каждый час";break;
-                case 30:
-                case "30":period="Каждые полчаса";break;
-            }
+            var p=d[i], dateExp = /(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,status_ico='<i class="fa fa-2x fa-circle-o-notch" aria-hidden="true"></i>';
+
             s= '<div class="row item" data-rel="'+p.id+'">';
             s+= '<div class="col-md-2"><b>'+p.title+'</b></div>';
             s+= '<div class="col-md-4"><div class="multirows">'+p.protocol+'<br/><i style="color:blue;">'+p.link.substr(0,32)+'...'+'</i></div></div>';
             s+= '<div class="col-md-2">'+p.inn+'</div>';
             s+= '<div class="col-md-2">'+p.last.replace(dateExp,"$3.$2.$1 $4:$5:$6")+'</div>';
-            s+= '<div class="col-md-1"><div class="multirows">'+period+'</div></div>';
+            s+= '<div class="col-md-1"><div class="multirows">'+periodTranslate(p.period)+'</div></div>';
             s+= '<div class="col-md-1"><a href="javascript:$(\'#supplier_'+p.id+'\').modal();"><i class="fa fa fa-pencil edit-supplier" style="color:green;"></i></a></div>';
             //edit window
             s+= '<div class="modal fade" id="supplier_'+p.id+'" data-rel="/data/supplierupdate"><div class="modal-dialog modal-lg"><div class="modal-content">';

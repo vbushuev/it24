@@ -12,8 +12,11 @@
             s+= '<div class="col-md-2 '+p.status+'">'+status_ico+'<div class="error-message"><h5>'+p.error+'</h5>'+p.message+'</div></div>';
             s+= '<div class="col-md-2">'+p.title+'</div>';
             s+= '<div class="col-md-2">'+p.start.replace(/(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,"$3.$2.$1")+'</div>';
-            s+= '<div class="col-md-2">'+p.start.replace(dateExp,"$4:$5:$6")+'</div>';
-            s+= '<div class="col-md-2">'+((p.end!=null)?p.end.replace(dateExp,"$4:$5:$6"):"")+'</div>';
+            s+= '<div class="col-md-2"><div class="multirows">';
+            s+= 'Начало:<b style="float:right;display:inline-block;">'+p.start.replace(dateExp,"$4:$5:$6")+'</b><br/>'
+            s+= 'Окончание:<b style="float:right;display:inline-block;">'+((p.end!=null&&typeof(p.end)!="undefined")?p.end.replace(dateExp,"$4:$5:$6"):'')+'</b>'
+            s+= '</div></div>';
+            s+= '<div class="col-md-2 summary">'+p.summary+'</div>';
             s+= '<div class="col-md-1 total">'+p.total+'</div>';
             s+= '</div>';
             $("#js-container").append(s);
@@ -33,6 +36,7 @@
                 dataType:"json",
                 success:function(d){
                     $t.find(".total").text(d.total);
+                    $t.find(".summary").html(priceNumber(d.sum));
                 }
             });
         });

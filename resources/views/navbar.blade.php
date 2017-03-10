@@ -14,10 +14,18 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
+                @can('uploads')
                 <li @if(isset($panel)&&($panel=='uploads'))class="active"@endif><a href="/panel">Загрузки поставщиков @if(isset($panel)&&($panel=='uploads'))<span class="sr-only">(current)</span>@endif</a></li>
+                @endcan
                 <li @if(isset($panel)&&($panel=='downloads'))class="active"@endif><a href="/panel/downloads">Выгрузки клиентам @if(isset($panel)&&($panel=='downloads'))<span class="sr-only">(current)</span>@endif</a></li>
+                @can('suppliers')
                 <li @if(isset($panel)&&($panel=='suppliers'))class="active"@endif><a href="/panel/suppliers">Поставщики @if(isset($panel)&&($panel=='suppliers'))<span class="sr-only">(current)</span>@endif</a></li>
+                @elsecan('schedules')
+                <li @if(isset($panel)&&($panel=='schedules'))class="active"@endif><a href="/panel/schedules">Загрузки @if(isset($panel)&&($panel=='schedules'))<span class="sr-only">(current)</span>@endif</a></li>
+                @endcan
+                @can('users')
                 <li @if(isset($panel)&&($panel=='users'))class="active"@endif><a href="/panel/users">Клиенты @if(isset($panel)&&($panel=='users'))<span class="sr-only">(current)</span>@endif</a></li>
+                @endcan
                 <!--<li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                     <ul class="dropdown-menu">

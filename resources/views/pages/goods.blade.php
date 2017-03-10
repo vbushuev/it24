@@ -44,16 +44,17 @@
                                     <li role="separator" class="divider"></li>
                                 </ul>
                             </li>
-
-                            <li>
-
-                            </li>
                         </ul>
                         <form class="navbar-form navbar-left" role="search">
                             <div class="form-group">
                                 <input type="text" class="form-control search" placeholder="поиск" onkeyup="{page.filters.search($(this));}" name="search">
                             </div>
                         </form>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="javascript:page.filters.clear();">Сбросить фильтры</a>
+                            </li>
+                        </ul>
                     </div>
                     <!-- /.navbar-collapse -->
                 </div>

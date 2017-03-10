@@ -18,7 +18,11 @@
             @if (Route::has('login'))
                 <div class="top-right links">
                     @if (Auth::check())
+                        @can('uploads')
                         <a href="{{ url('/panel') }}">Панель</a>
+                        @elsecan('schedules')
+                        <a href="{{ url('/panel/downloads') }}">Панель</a>
+                        @endcan
                     @else
                         <a href="{{ url('/login') }}">Вход</a>
                         <a href="{{ url('/register') }}">Регистрация</a>
@@ -28,7 +32,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    IT24 Агрегатор
+                    Analyze-IT
                 </div>
                 <div class="links">
                     <a href="#">Документация</a>

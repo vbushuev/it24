@@ -11,6 +11,7 @@
 .item
     line-height: 4em;
     //height:4em;
+    padding: auto 0;
     cursor: pointer;
     transition: all 0.4s ease-out;
     font-size: 90%;
@@ -38,6 +39,10 @@
         display: block;
 .item:hover
     background-color: rgba(0,0,0,.1);
+.item.status-admin
+    background-color: rgba(0,255,0,.2);
+.item.status-admin:hover
+    background-color: rgba(0,255,0,.1);
 .item.status-failed
     background-color: rgba(255,0,0,.2);
 .item.status-failed:hover
@@ -51,7 +56,7 @@
         font-weight: 600;
     .input-group
         margin-bottom: 1rem;
-.input-group-addon
+.input-group-addon,.input-group-btn > button
     min-width: 14rem;
 .modal-header h5
     display inline-block
@@ -92,3 +97,14 @@
     left:1em;
 .submenu
     margin-left: 1em;
+.modal p
+    line-height: 1.2em;
+    font-size: 1.2em;
+input[type="checkbox"]
+    height: 1em;
+a .fa
+    color rgba(0,0,0,.5)
+    cursor: pointer;
+    transition: all .2s ease-in;
+a:hover .fa
+    color green

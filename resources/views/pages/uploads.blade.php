@@ -46,6 +46,11 @@
                                 <input type="text" class="form-control search" placeholder="поиск" onchange="{page.filters.search($(this));}" name="search">
                             </div>
                         </form>-->
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="javascript:page.filters.clear();">Сбросить фильтры</a>
+                            </li>
+                        </ul>
                     </div>
                     <!-- /.navbar-collapse -->
                 </div>
@@ -57,8 +62,8 @@
                 <div class="col-md-2">Cтатус</div>
                 <div class="col-md-2">Поставщик</div>
                 <div class="col-md-2">Дата</div>
-                <div class="col-md-2">Начало</div>
-                <div class="col-md-2">Окончание</div>
+                <div class="col-md-2">Время</div>
+                <div class="col-md-2">Сумма</div>
                 <div class="col-md-1">Кол-во записей</div>
             </div>
         </div>

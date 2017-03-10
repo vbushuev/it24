@@ -18,7 +18,7 @@
                 <div class="col-md-1">Кол-во записей</div>
             </div>
         </div>
-        <div id="js-container" class="panel-body">
+        <div id="js-container" class="panel-body" data-ref="/data/downloads">
         </div>
     </div>
     <!--<div class="row">

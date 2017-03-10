@@ -25,7 +25,7 @@ class ResetPasswordController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/panel';
+    //protected $redirectTo = '/panel';
 
     /**
      * Create a new controller instance.
@@ -35,5 +35,9 @@ class ResetPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+    protected function redirectTo(){
+        if(!Auth::user()->can('uploads')) return '/panel/downloads';
+        return '/panel';
     }
 }

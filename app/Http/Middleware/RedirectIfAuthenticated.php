@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Log;
 use Illuminate\Support\Facades\Auth;
 
 class RedirectIfAuthenticated
@@ -18,7 +19,9 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            return redirect('/home');
+            Log::debug("RedirectIfAuthenticated:: ".Auth::user()->role." can_uploads: ".Auth::user()->can('uploads'));
+            if(Auth::user()->can('uploads'))return redirect('/panel');
+            else return redirect('/panel/downloads');
         }
 
         return $next($request);
