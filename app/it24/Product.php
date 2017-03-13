@@ -9,6 +9,7 @@ class Product extends Common{
         $this->loadFromArray($a);
     }
     public function store(){
+        $this->_properties["title"] = ((!isset($this->_properties["title"]))||empty($this->_properties["title"])||$this->_properties["title"]=="")?"notitle":$this->_properties["title"];
         Log::debug("Check Product ".$this->title);
         $this->dropEmpty();
         $pi = pathinfo($this->image_url);
@@ -31,7 +32,8 @@ class Product extends Common{
                 "certificate" => $this->certificate,
                 "description" => $this->description,
                 "pack"=>$this->pack,
-                "price"=>$this->amount
+                "price"=>$this->amount,
+                "updated_at"=>date("Y-m-d H:i:s")
             ]);
         }
         else{
@@ -50,17 +52,11 @@ class Product extends Common{
             unset($ins["transaction_id"]);
 
             $this->_properties["id"]=DB::table('goods')->insertGetId($ins);
-            //check category
-            if($this->external_category_id>0){
-                $p = DB::table('categories')
-                    ->where([['external_id','=',$this->external_category_id],['supply_id','=',$this->supply_id]])
-                    ->first();
-                if(isset($p->id)){
-                    DB::table('goods_categories')->insert(["good_id"=>$this->id,"category_id"=>$p->id]);
-                }
-            }
         }
-
+        //check category
+        if($this->external_category_id>0){
+            $this->getCatalog();
+        }
         $this->_properties["image"] = "S".str_pad($this->id, 10, "0", STR_PAD_LEFT).".".$pi['extension'];
         if(!file_exists("public/img/".$this->image))$this->loadImage($this->image_url,"public/img/".$this->image);
         DB::table('goods')->where("id","=",$this->id)->update([
@@ -74,6 +70,27 @@ class Product extends Common{
             "quantity" => $this->quantity,
             "amount" => $this->amount
         ]);
+    }
+    protected function getCatalog(){
+        try{
+            $p = DB::table('categories')
+                ->where([['external_id','=',$this->external_category_id],['supply_id','=',$this->supply_id]])
+                ->first();
+            $cat_id="";
+            $ext_id = $p->id;
+            while(empty($cat_id)&&!is_null($ext_id)){
+                if(isset($p->internal_id)&&!is_null($p->internal_id)) $cat_id=$p->internal_id;
+                else $ext_id = $p->parent_id;
+                $p = DB::table('categories')
+                    ->where([['id','=',$ext_id],['supply_id','=',$this->supply_id]])
+                    ->orWhere([['id','=',$ext_id],['supply_id','=',$this->supply_id]])
+                    ->first();
+            }
+            if(!empty($cat_id)){
+                $exists = DB::table('goods_catalogs')->where(["good_id"=>$this->id,"catalog_id"=>$cat_id])->first();
+                if(!isset($exists->id))DB::table('goods_catalogs')->insert(["good_id"=>$this->id,"catalog_id"=>$cat_id]);
+            }
+        }catch(\Exception $e){}
     }
     protected function loadImage($url,$f){
         try{

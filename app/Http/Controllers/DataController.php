@@ -7,6 +7,7 @@ use Log;
 use DB;
 use App\Schedule;
 use App\User;
+use it24\Exporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,7 @@ class DataController extends Controller{
     protected function filters(Request $rq,&$sel,$table=""){
         $t = (!empty($table)?$table.".":"");
         if(!empty($rq->input("category_id","")))$sel->whereIn("categories.id",$rq->input("category_id"));
+        if(!empty($rq->input("catalog_id","")))$sel->whereIn("catalog_id",$rq->input("catalog_id"));
         if(!empty($rq->input("brand_id","")))$sel->where($t."brand_id","=",$rq->input("brand_id"));
         if(!empty($rq->input("supply_id","")))$sel->where($t."supply_id","=",$rq->input("supply_id"));
         //if(!empty($rq->input("date","")))$sel->where(DB::raw("date_format(date(".(!empty($table)?$table.".":"")."timestamp),'%Y-%m-%d') = '".$rq->input("date")."'"));
@@ -113,8 +115,13 @@ class DataController extends Controller{
     public function downloads(Request $rq){
         $sel = DB::table("download_transactions")
             ->join('download_schedules','download_schedules.id','=','download_transactions.schedule_id')
-            ->where('download_schedules.user_id','=',Auth::user()->id);
+            ->join('users','users.id','=','download_schedules.user_id')
+            ->join('upload_statuses','upload_statuses.id','=','download_transactions.status_id')
+            ->orderBy("download_transactions.id","desc")
+            ->select(DB::raw('download_transactions.*'),DB::raw('users.name'),DB::raw('download_schedules.id as schedule_id,download_schedules.title as schedule_title'),DB::raw('upload_statuses.title as status'));
+        if(!Auth::user()->can('uploads')) $sel = $sel->where('download_schedules.user_id','=',Auth::user()->id);
         $this->filters($rq,$sel);
+        Log::debug("SQL: ".$sel->toSql());
         $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
@@ -140,7 +147,12 @@ class DataController extends Controller{
     public function useredit(Request $rq){
         $data = $rq->all();
         $res = User::find($data["id"]);
-        $res->fill($data);
+        $res->fill([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'role' => $data["role"]
+        ]);
         $res->save();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
@@ -179,8 +191,8 @@ class DataController extends Controller{
         $sel = DB::table('goods')
             ->join('brands','brands.id','=','goods.brand_id')
             ->join('suppliers','suppliers.id','=','goods.supply_id')
-            ->join('goods_categories','goods_categories.good_id','=','goods.id')
-            ->join('categories','categories.id','=','goods_categories.category_id')
+            ->join('goods_catalogs','goods_catalogs.good_id','=','goods.id')
+            ->join('catalogs','catalogs.id','=','goods_catalogs.catalog_id')
             ->select('goods.id AS id',
                 'goods.sid AS sid',
 	            'goods.timestamp AS timestamp',
@@ -199,14 +211,53 @@ class DataController extends Controller{
 	            'goods.brand_id AS brand_id',
 	            'goods.supply_id AS supply_id',
 	            'goods.price AS price',
-	            'goods_categories.category_id AS category_id',
+	            'goods_catalogs.catalog_id AS catalog_id',
 	            'brands.title AS brand',
-	            'categories.title AS category',
+	            'catalogs.title AS category',
                 'suppliers.title AS supplier')
             ->orderBy('goods.id');
         $this->filters($rq,$sel,"goods");
         Log::debug("SQL: ".$sel->toSql());
         $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function export(Request $rq){
+        $e = new Exporter();
+        $f = "../storage/downloads/user_".Auth::user()->id."-".date("Y-m-d_H-i-s").".xml";
+        file_put_contents($f,$e->xml(["1"]));
+        return response()->download($f);
+    }
+    public function catalog(Request $rq){
+        $s = DB::table("catalogs");
+        $parent_id = $rq->input("parent_id","");
+        if(empty($parent_id))$s->whereNull('parent_id');
+        else $s->where('parent_id','=',$parent_id);
+        return response()->json($s->get(),200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    public function catalogs(Request $rq){
+        $sel = DB::table("catalogs")->orderBy('parent_id','asc')->whereNull("parent_id")->get();
+        $res=[];
+        foreach ($sel as $r) {
+            $res[$r->id] = (array)$r;
+            $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id);
+        }
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    protected function recursiveCatalogs($id){
+        if(empty($id)||is_null($id))return [];
+        $res = [];
+        $rows = DB::table("catalogs")->orderBy('parent_id','asc')->where("parent_id",'=',$id)->get();
+        foreach ($rows as $r) {
+            $res[$r->id] = (array)$r;
+            $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id);
+        }
+        return $res;
+    }
+    public function catalogedit(Request $rq){
+        $data = $rq->all();
+        $s = DB::table("catalogs")->where("id","=",$rq->input("id","-1"));
+        unset($data["id"]);
+        $s->update($data);
+        return response()->json($s->get(),200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
 }

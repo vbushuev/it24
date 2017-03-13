@@ -8,11 +8,12 @@ use it24\Category as Category;
 
 class Parser extends Common{
     public function __construct($x=null){
-        $this->parse($a);
+        $this->parse($x);
     }
-    public function parse($xml=null){
-        if(is_null($xml))return;
-        //print_r($xml);
+    public function parse($xml=null,$j=[]){
+        if(is_null($xml)||!isset($j["job_id"])||!isset($j["job"]))return;
+        $job_id = $j["job_id"];
+        $job = $j["job"];
         $cats = $xml->xml_catalog->shop->categories->category;
         if(!isset($cats)&&!is_null($cats)){
             Log::error("No data in ".$job->title." ".$job->link);

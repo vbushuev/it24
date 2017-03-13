@@ -52,4 +52,9 @@ class HomeController extends Controller
     {
         return view('pages.schedules',['panel'=>'schedules']);
     }
+    public function catalog()
+    {
+        $this->authorize('uploads');
+        return view('pages.catalog',['panel'=>'catalog']);
+    }
 }

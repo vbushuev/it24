@@ -59,6 +59,7 @@ var barcodeDraw = function(c){
     return ret;
 }
 var page={
+    noscroll:false,
     filters:{
         data:{
             f:0,
@@ -66,7 +67,7 @@ var page={
             s:"",
             brand_id:"",
             supply_id:"",
-            category_id:[]
+            catalog_id:[]
         },
         search:function($t){
             var val = $t.val();
@@ -87,7 +88,7 @@ var page={
         clear:function(){
             var k = arguments.length?(Array.isArray(arguments[0])?arguments[0]:[arguments[0]]):[];
             if(k.length)for(var i in k){
-                if(k[i]=="category_id"){
+                if(k[i]=="catalog_id"){
                     $(".filter-check").removeAttr("checked");
                     this.data[k[i]]=[];
                 }else this.data[k[i]]="";
@@ -108,31 +109,31 @@ var page={
                 page.filters.data.error=(page.filters.data.error==1)?0:1;
                 page.load();
             },
-            categories:function(){
+            catalogs:function(){
                 var t = arguments.length?arguments[0]:"",cc=!(typeof $(t).attr("checked")=="undefined");
-                page.filters.data.category_id = (typeof page.filters.data.category_id == "undefined")?[]:page.filters.data.category_id;
-                if(!Array.isArray(page.filters.data.category_id))page.filters.data.category_id=[];
+                page.filters.data.catalog_id = (typeof page.filters.data.catalog_id == "undefined")?[]:page.filters.data.catalog_id;
+                if(!Array.isArray(page.filters.data.catalog_id))page.filters.data.catalog_id=[];
                 if(cc){
                     $(t).removeAttr("checked");
-                    delete page.filters.data.category_id[$(t).parent().attr("data-id")];
-                    page.filters.data.category_id.splice(page.filters.data.category_id.indexOf($(t).parent().attr("data-id")),1);
+                    delete page.filters.data.catalog_id[$(t).parent().attr("data-id")];
+                    page.filters.data.catalog_id.splice(page.filters.data.catalog_id.indexOf($(t).parent().attr("data-id")),1);
                 }
                 else {
                     $(t).attr("checked","checked");
-                    page.filters.data.category_id.push($(t).parent().attr("data-id"));
+                    page.filters.data.catalog_id.push($(t).parent().attr("data-id"));
                 }
                 $(t).parent().find('ul.dropdown-menu li').each(function(){
                     //console.debug($(t).attr("checked")+" :"+$(this).attr("data-id"));
                     if(cc){
-                        //delete page.filters.data.category_id[$(this).attr("data-id")];
-                        page.filters.data.category_id.splice(page.filters.data.category_id.indexOf($(this).attr("data-id")),1);
+                        //delete page.filters.data.catalog_id[$(this).attr("data-id")];
+                        page.filters.data.catalog_id.splice(page.filters.data.catalog_id.indexOf($(this).attr("data-id")),1);
                         $(this).find(".filter-check").removeAttr("checked");
                     }else{
-                        page.filters.data.category_id.push($(this).attr("data-id"));
+                        page.filters.data.catalog_id.push($(this).attr("data-id"));
                         $(this).find(".filter-check").attr("checked","checked");
                     }
                 });
-                console.debug(page.filters.data.category_id);
+                console.debug(page.filters.data.catalog_id);
                 page.filters.data.f=0;
                 page.load();
             }
@@ -142,7 +143,7 @@ var page={
                 page.filters.get.roles();
                 page.filters.get.brands();
                 page.filters.get.suppliers();
-                page.filters.get.categories();
+                page.filters.get.catalogs();
             },
             roles:function(){
                 var jscontent = $(".roles").next("ul.dropdown-menu"),
@@ -192,17 +193,17 @@ var page={
                     }
                 });
             },
-            categories:function(t){
-                var jscontent = $(".categories").next("ul.dropdown-menu"),recursiveCategories=function(c){
+            catalogs:function(t){
+                var jscontent = $(".catalogs").next("ul.dropdown-menu"),recursivecatalogs=function(c){
                     var s ='';
                     for(var i in c){
                         var p=c[i];
                         s+='<li data-id="'+p.id+'" '+(Array.isArray(p.childs)?'':'class="dropdown-submenu"')+'>';
-                        s+='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.categories(this);}"/>';
+                        s+='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.catalogs(this);}"/>';
                         s+='<a href="javascript:0" class="submenu'+(Array.isArray(p.childs)?'':' dropdown-toggle" data-toggle="dropdown" aria-expanded="false')+'">'+p.title+'</a>';
                         if(!Array.isArray(p.childs)){
                             s+='<ul class="dropdown-menu">';
-                            s+=recursiveCategories(p.childs);
+                            s+=recursivecatalogs(p.childs);
                             s+='</ul>';
                         }
                         s+='</li>';
@@ -211,24 +212,22 @@ var page={
                 };
                 if(jscontent.length==0)return;
                 $.ajax({
-                    url:"/data/categories",
+                    url:"/data/catalogs",
                     type:"GET",
                     dataType:"json",
                     success:function(d){
                         console.debug(d);
                         for(var i in d){
-                            var p=d[i],s='',h='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.categories(this);}"/>';
-                            if(p.childs.length==0){
-                                s+='<li><a href="javascript:{0}">'+p.title+'</a></li>';
-                            }
-                            else{
-                                s+='<li class="dropdown-submenu">';
-                                s+=h;
-                                s+='<a href="javascript:{0}" class="submenu categories" data-toggle="dropdown">'+p.title+'</a>';
+                            var p=d[i],s='',h='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.catalogs(this);}"/>';
+                            s+='<li data-id="'+p.id+'" '+(Array.isArray(p.childs)?'':'class="dropdown-submenu"')+'>';
+                            s+=h;
+                            s+='<a href="javascript:0" class="catalogs submenu'+(Array.isArray(p.childs)?'':' dropdown-toggle" data-toggle="dropdown" aria-expanded="false')+'">'+p.title+'</a>';
+                            if(!Array.isArray(p.childs)){
                                 s+='<ul class="dropdown-menu">';
-                                s+=recursiveCategories(p.childs);
-                                s+='</ul></li>';
+                                s+=recursivecatalogs(p.childs);
+                                s+='</ul>';
                             }
+                            s+='</li>'
                             jscontent.append(s);
                         }
                     }
@@ -291,6 +290,7 @@ $(document).ready(function(){
     page.load();
     page.filters.get.all();
     $(window).scroll(function () {
+        if(page.noscroll)return;
         if(($(window).height() + $(window).scrollTop()+300) >= $(document).height() && !lock){
             lock = true;
             page.load();

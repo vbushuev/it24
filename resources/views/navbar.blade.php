@@ -50,8 +50,9 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Настройки <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Профиль</a></li>
-                        <li><a href="#">Сервер</a></li>
+                        @can('suppliers')
+                        <li><a href="/panel/catalog">Каталог</a></li>
+                        @endcan
                         <li role="separator" class="divider"></li>
                         <li><a href="#">О системе</a></li>
                     </ul>

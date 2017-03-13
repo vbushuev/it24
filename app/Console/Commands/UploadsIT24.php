@@ -44,18 +44,22 @@ class UploadsIT24 extends Command
     public function handle()
     {
         //select schedules.id as schedule_id,schedules.period, schedules.last,suppliers.title,schedules.supply_id,suppliers.link from schedules join suppliers on suppliers.id=schedules.supply_id where date_add(schedules.last,INTERVAL period MINUTE)<=now();
-        $jobs = DB::table('schedules')
+        //$jobs = DB::table('schedules')
+        $select = DB::table('schedules')
             ->select('schedules.id as schedule_id','schedules.period','schedules.last','suppliers.title','suppliers.code','schedules.supply_id','schedules.protocol_id','suppliers.link')
             ->join('suppliers','suppliers.id','=','schedules.supply_id')
 
-            ->where('schedules.supply_id','=','2')
-            //->whereRaw('date_add(schedules.last,INTERVAL period MINUTE) <= now()')
-            ->orderBy('schedules.last','asc')
-            ->get();
+            ->whereRaw('not exists(select 1 from upload_transactions where schedule_id = schedules.id and status_id=1)')
+            ->whereRaw('date_add(schedules.last,INTERVAL period MINUTE) <= now()')
+            ->orderBy('schedules.last','asc');
+        Log::debug($select->toSql());
+        $jobs = $select->get();
         foreach ($jobs as $job) {
+            print_r($job);
             DB::table('schedules')->where('id','=',$job->schedule_id)->update(['last'=>date('Y-m-d H:i:s')]);
             if(!in_array($job->protocol_id,[1]))continue;
             $job_id = DB::table('upload_transactions')->insertGetId(["schedule_id"=>$job->schedule_id,"supply_id"=>$job->supply_id,"status_id"=>1,"error_id"=>"0"]);
+
             try{
                 $out = file_get_contents($job->link);
                 //Log::debug($job->title." ".$job->link);

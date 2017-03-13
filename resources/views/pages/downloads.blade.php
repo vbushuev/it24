@@ -11,10 +11,10 @@
             <div class="row heading">
                 <div class="col-md-1">#</div>
                 <div class="col-md-2">Cтатус</div>
-                <div class="col-md-2">Поставщик</div>
+                <div class="col-md-2">Клиент</div>
                 <div class="col-md-2">Дата</div>
                 <div class="col-md-2">Начало</div>
-                <div class="col-md-2">Окончание</div>
+                <div class="col-md-2">Сумма</div>
                 <div class="col-md-1">Кол-во записей</div>
             </div>
         </div>

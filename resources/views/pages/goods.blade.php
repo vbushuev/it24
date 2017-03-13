@@ -24,9 +24,9 @@
                     <div class="collapse navbar-collapse" id="filters-panel">
                         <ul class="nav navbar-nav">
                             <li class="dropdown">
-                                <a href="javascript:0" class="dropdown-toggle categories" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Категории <span class="caret"></span></a>
+                                <a href="javascript:0" class="dropdown-toggle catalogs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Категории <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="javascript:{page.filters.clear('category_id');page.load();}">Очистить</a></li>
+                                    <li><a href="javascript:{page.filters.clear('catalog_id');page.load();}">Очистить</a></li>
                                     <li role="separator" class="divider"></li>
                                 </ul>
                             </li>
