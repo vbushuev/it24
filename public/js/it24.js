@@ -144,6 +144,7 @@ var page={
                 page.filters.get.brands();
                 page.filters.get.suppliers();
                 page.filters.get.catalogs();
+                $("body").trigger('it24:filters-loaded');
             },
             roles:function(){
                 var jscontent = $(".roles").next("ul.dropdown-menu"),
@@ -198,9 +199,10 @@ var page={
                     var s ='';
                     for(var i in c){
                         var p=c[i];
-                        s+='<li data-id="'+p.id+'" '+(Array.isArray(p.childs)?'':'class="dropdown-submenu"')+'>';
+                        store.catalogs[p.id] = p.title;
+                        s+='<li data-id="'+p.id+'" class="catalog-id'+(Array.isArray(p.childs)?'':' dropdown-submenu')+'">';
                         s+='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.catalogs(this);}"/>';
-                        s+='<a href="javascript:0" class="submenu'+(Array.isArray(p.childs)?'':' dropdown-toggle" data-toggle="dropdown" aria-expanded="false')+'">'+p.title+'</a>';
+                        s+='<a href="javascript:0" data-id="'+p.id+'" id="'+p.id+'" class="submenu'+(Array.isArray(p.childs)?'':' dropdown-toggle" data-toggle="dropdown" aria-expanded="false')+'">'+p.title+'</a>';
                         if(!Array.isArray(p.childs)){
                             s+='<ul class="dropdown-menu">';
                             s+=recursivecatalogs(p.childs);
@@ -219,9 +221,10 @@ var page={
                         console.debug(d);
                         for(var i in d){
                             var p=d[i],s='',h='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.catalogs(this);}"/>';
+                            store.catalogs[p.id] = p.title;
                             s+='<li data-id="'+p.id+'" '+(Array.isArray(p.childs)?'':'class="dropdown-submenu"')+'>';
                             s+=h;
-                            s+='<a href="javascript:0" class="catalogs submenu'+(Array.isArray(p.childs)?'':' dropdown-toggle" data-toggle="dropdown" aria-expanded="false')+'">'+p.title+'</a>';
+                            s+='<a href="javascript:0" data-id="'+p.id+'" id="'+p.id+'" class="catalogs submenu'+(Array.isArray(p.childs)?'':' dropdown-toggle" data-toggle="dropdown" aria-expanded="false')+'">'+p.title+'</a>';
                             if(!Array.isArray(p.childs)){
                                 s+='<ul class="dropdown-menu">';
                                 s+=recursivecatalogs(p.childs);
@@ -284,10 +287,10 @@ var page={
     }
 }
 var store={
-    roles:{}
+    roles:{},
+    catalogs:{}
 }
 $(document).ready(function(){
-    page.load();
     page.filters.get.all();
     $(window).scroll(function () {
         if(page.noscroll)return;
@@ -296,4 +299,5 @@ $(document).ready(function(){
             page.load();
         }
     });
+    page.load();
 });

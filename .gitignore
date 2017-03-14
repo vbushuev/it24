@@ -10,3 +10,9 @@ Homestead.yaml
 .env
 
 .env.example
+
+*.xml
+
+*.xml
+
+*.xml

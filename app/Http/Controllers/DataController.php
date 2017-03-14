@@ -222,9 +222,15 @@ class DataController extends Controller{
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function export(Request $rq){
-        $e = new Exporter();
-        $f = "../storage/downloads/user_".Auth::user()->id."-".date("Y-m-d_H-i-s").".xml";
-        file_put_contents($f,$e->xml(["1"]));
+        $id = $rq->input("id","-1");
+        $what = DB::table("download_schedules")->where("id","=",$id)->first();
+        if(isset($what->title)){
+            $args = $what->catalogs;
+            $cats = preg_split("/,/i",$what->catalogs);
+            $e = new Exporter();
+            $f = "../storage/downloads/".$what->title."-client-".Auth::user()->id."-".date("Y-m-d_H-i-s").".xml";
+            file_put_contents($f,$e->xml($cats));
+        }
         return response()->download($f);
     }
     public function catalog(Request $rq){
