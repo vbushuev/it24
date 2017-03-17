@@ -40,6 +40,7 @@ class DownloadsIT24 extends Command
      */
     public function handle()
     {
+        ini_set('max_execution_time', 900);
         $select =  DB::table('download_schedules')
             ->whereRaw('not exists(select 1 from download_transactions where download_transactions.schedule_id = download_schedules.id and download_transactions.status_id=1 and date_add(download_transactions.timestamp,INTERVAL -1440 MINUTE) <= now())')
             ->whereRaw('date_add(download_schedules.last,INTERVAL period MINUTE) <= now()')

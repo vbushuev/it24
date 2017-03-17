@@ -12,6 +12,8 @@ class Parser extends Common{
     }
     public function parse($xml=null,$j=[]){
         if(is_null($xml)||!isset($j["job_id"])||!isset($j["job"]))return;
+        $_doneFile='ut-p'.date("Y-m-d").".json";
+        $_done=(file_exists($_doneFile))?json_decode(file_get_contents($_doneFile),true):[];
         $job_id = $j["job_id"];
         $job = $j["job"];
         $cats = $xml->shop->categories->category;
@@ -73,6 +75,9 @@ class Parser extends Common{
                 <param name="Количество деталей"/>
             </offer>
             */
+            $total++;
+            if(isset($_done[$item["id"]->__toString()]))continue;
+            $_done[$item["id"]->__toString()]=1;
             $a = [
                 "transaction_id"=>$job_id,
                 "supply_id"=>$job->supply_id,
@@ -107,8 +112,9 @@ class Parser extends Common{
             $a["quantity"]=(intval($a["quantity"])<0)?-intval($a["quantity"]):intval($a["quantity"]);
             $o = new Product($a);
             $o->store();
-            $total++;
+            file_put_contents($_doneFile,json_encode($_done));
         }
+        unlink($_doneFile);
         return $total;
     }
 }

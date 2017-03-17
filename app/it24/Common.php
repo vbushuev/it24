@@ -2,6 +2,7 @@
 namespace it24;
 class Common{
     protected $_properties = [];
+    protected $_outDir;
     public function loadFromJson($s){
         $d = json_decode($s,true);
         $this->loadFromArray($d);

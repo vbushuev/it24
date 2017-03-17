@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\Catalogs::class,
         \App\Console\Commands\UploadsIT24::class,
-        \App\Console\Commands\DownloadsIT24::class
+        \App\Console\Commands\DownloadsIT24::class,
+        \App\Console\Commands\DropTerminated::class
     ];
 
     /**
@@ -26,8 +27,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('command:uploads')->everyMinute()->appendOutputTo("/home/a0124380/domains/a0124380.xsph.ru/public_html/storage/logs/command_uploads.log");//->emailOutputTo('yanusdnd@inbox.ru');;
-        $schedule->command('command:downloads')->everyMinute();//->emailOutputTo('yanusdnd@inbox.ru');;
+        //$schedule->command('command:dropuploads')->everyMinute();//->emailOutputTo('yanusdnd@inbox.ru');;
+        //$schedule->command('command:uploads')->everyMinute();
+        //$schedule->command('command:downloads')->everyMinute();//->emailOutputTo('yanusdnd@inbox.ru');;
     }
 
     /**

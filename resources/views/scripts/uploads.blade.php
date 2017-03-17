@@ -22,24 +22,52 @@
             $("#js-container").append(s);
             page.filters.data.f++;
         }
+        $("#js-container").trigger("content:ready");
     }
+    var last=[];
+    var getProgress = function (){
+        var arg = arguments.length?arguments[0]:{};
+        var $t = $(arg),tr_i = $t.attr('data-rel');
+        $.ajax({
+            url:"/data/uploads/progress",
+            data:{tr_id:tr_i},
+            type:"GET",
+            dataType:"json",
+            success:function(d){
+                $t.find(".total").text(d.total);
+                $t.find(".summary").html(priceNumber(d.sum));
+                console.debug("was "+last[tr_i]+" now "+d.total);
+                if($t.hasClass("status-failed"))return;
+                if(typeof(last[tr_i])=="undefined" || last[tr_i]!=d.total || d.total == 0 )setTimeout(getProgress,1000,arg);
+                last[tr_i] = d.total;
+            }
+        });
+    }
+    $("#js-container").on("content:ready",function(){
+        //$(".item.status-inprogress,.item.status-failed").each(function(){
+        $(".item.status-inprogress,.item.status-failed").each(function(){
+            getProgress(this);
+        });
+        $("#js-container").unbind("content:ready");
+    });
 
-    var all=true;
+    /*
     setInterval(function(){
-        var $items = all?$(".item"):$(".item.status-inprogress");
+        var $items = $(".item.status-inprogress");
         $items.each(function(){
-            var $t = $(this);
+            var $t = $(this),
+                tr_i = $t.attr('data-rel');
             $.ajax({
                 url:"/data/uploads/progress",
-                data:{tr_id:$t.attr('data-rel')},
+                data:{tr_id:tr_i},
                 type:"GET",
                 dataType:"json",
                 success:function(d){
                     $t.find(".total").text(d.total);
                     $t.find(".summary").html(priceNumber(d.sum));
+                    last[tr_i] = d.total;
                 }
             });
         });
-        all=false;
-    },1400);
+    },2400);*/
 </script>

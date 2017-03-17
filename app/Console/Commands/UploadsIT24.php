@@ -45,12 +45,12 @@ class UploadsIT24 extends Command
     {
         //select schedules.id as schedule_id,schedules.period, schedules.last,suppliers.title,schedules.supply_id,suppliers.link from schedules join suppliers on suppliers.id=schedules.supply_id where date_add(schedules.last,INTERVAL period MINUTE)<=now();
         //$jobs = DB::table('schedules')
+        ini_set('max_execution_time', 900);
         $select = DB::table('schedules')
             ->select('schedules.id as schedule_id','schedules.period','schedules.last','suppliers.title','suppliers.code','schedules.supply_id','schedules.protocol_id','suppliers.link')
             ->join('suppliers','suppliers.id','=','schedules.supply_id')
-
-            ->whereRaw('not exists(select 1 from upload_transactions where schedule_id = schedules.id and status_id=1)')
             ->whereRaw('date_add(schedules.last,INTERVAL period MINUTE) <= now()')
+            ->orWhereRaw('not exists(select 1 from upload_transactions where upload_transactions.status_id in (1,3) and upload_transactions.timestamp>date_add(now(),INTERVAL -schedules.period-30 MINUTE) and upload_transactions.schedule_id=schedules.id)')
             ->orderBy('schedules.last','asc');
         Log::debug($select->toSql());
         $jobs = $select->get();
@@ -61,7 +61,15 @@ class UploadsIT24 extends Command
             $job_id = DB::table('upload_transactions')->insertGetId(["schedule_id"=>$job->schedule_id,"supply_id"=>$job->supply_id,"status_id"=>1,"error_id"=>"0"]);
 
             try{
-                $out = file_get_contents($job->link);
+                $_xml_file_name = $job->title."-".date("Y-m-d-H").".xml";
+                $out = "";
+                if(file_exists($_xml_file_name)){
+                    $out = file_get_contents($_xml_file_name);
+                }
+                else{
+                    $out = file_get_contents($job->link);
+                    file_put_contents($_xml_file_name,$out);
+                }
                 //Log::debug($job->title." ".$job->link);
                 libxml_use_internal_errors();
                 $xml = simplexml_load_string($out);

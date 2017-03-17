@@ -2,7 +2,7 @@ var priceNumber = function(d){
     var r = (d==null)?0:d, a = r.toString().split(/\./),na=[],n="",f="";
     if(d>=1000){
         na = a[0].split("").reverse();var c = 3;
-        console.debug(na);
+        //console.debug(na);
         for(var i in na){
             n+=na[i];
             if(--c<=0){

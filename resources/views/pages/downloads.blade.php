@@ -7,7 +7,7 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h4>Загрузки от поставщиков</h4>
+            <h4>Выгрузки клиентам</h4>
             <div class="row heading">
                 <div class="col-md-1">#</div>
                 <div class="col-md-2">Cтатус</div>

@@ -10,7 +10,7 @@ class Product extends Common{
     }
     public function store(){
         $this->_properties["title"] = ((!isset($this->_properties["title"]))||empty($this->_properties["title"])||$this->_properties["title"]=="")?"notitle":$this->_properties["title"];
-        Log::debug("Check Product ".$this->title);
+        //Log::debug("Check Product ".$this->title);
         $this->dropEmpty();
         $pi = pathinfo($this->image_url);
         $job_id = $this->transaction_id;
@@ -58,12 +58,15 @@ class Product extends Common{
             $this->getCatalog();
         }
         $this->_properties["image"] = "S".str_pad($this->id, 10, "0", STR_PAD_LEFT).".".$pi['extension'];
-        if(!file_exists("public/img/".$this->image))$this->loadImage($this->image_url,"public/img/".$this->image);
+        //echo "CURRENT WORKING DIR \t".getcwd()."\n";
+        $imgdir = file_exists("/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/")?"/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/":"public/img";
+        if(!file_exists($imgdir.$this->image))$this->loadImage($this->image_url,$imgdir.$this->image);
         DB::table('goods')->where("id","=",$this->id)->update([
             "image"=>$this->image
         ]);
+        //DB::raw('update upload_transactions set total = total+1,summary=summary+'.($this->quantity*$this->amount).' where id ='.$job_id);
         //uploads
-        $status = DB::table('upload_statuses')->where('title','=','done')->first();
+        //$status = DB::table('upload_statuses')->where('title','=','done')->first();
         DB::table('uploads')->insert([
             "good_id" => $this->id,
             "transaction_id" => $job_id,
