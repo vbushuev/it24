@@ -3,6 +3,7 @@
 /public/hot
 /public/img
 /storage/*.key
+/storage/downloads
 /vendor
 /.idea
 Homestead.json
@@ -16,9 +17,5 @@ Homestead.yaml
 *.jpg
 
 *.jpeg
-
-*.xml
-
-*.xml
 
 *.xml
