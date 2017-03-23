@@ -97,12 +97,13 @@
         for(var i = 0;i<d.length;++i){
             var p=d[i], dateExp = /(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,status_ico='<i class="fa fa-2x fa-circle-o-notch" aria-hidden="true"></i>',
                 catalogs = (p.catalogs=='null'||p.catalogs==null)?'Все':p.catalogs;
-            if(typeof(p.catalogs)!="undefined" && typeof(store.catalogs)!="undefined" && store.catalogs.length){
+            console.debug(store.catalogs);
+            if(typeof(p.catalogs)!="undefined" && store.catalogs!=null){
                 var a = p.catalogs.split(/,\s/g),t=[];
-                for(var i in a) t.push(store.catalogs[a[i]]);
-                console.debug(a);
-                console.debug(store.catalogs);
-                console.debug(t);
+                for(var i in a) {
+                    t.push(store.catalogs[a[i]]);
+                }
+
                 catalogs = t.join(", ");
             }
             s= '<div class="row item" data-rel="'+p.id+'">';

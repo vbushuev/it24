@@ -60,7 +60,7 @@
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Профиль</a></li>
+                                    <li><a href="/profile">Профиль</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
@@ -88,6 +88,6 @@
     @if(isset($panel))
     @include('scripts.'.$panel)
     @endif
-    <script src="{{ asset('js/it24.js') }}"></script>
+    <script src="{{ asset('js/it24.min.js') }}"></script>
 </body>
 </html>

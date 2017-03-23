@@ -148,10 +148,10 @@ class DataController extends Controller{
         $data = $rq->all();
         $res = User::find($data["id"]);
         $res->fill([
-            'name' => $data['name'],
-            'email' => $data['email'],
+            'name' => isset($data['name'])?$data['name']:$res->name,
+            'email' => isset($data['email'])?$data['email']:$res->email,
             'password' => bcrypt($data['password']),
-            'role' => $data["role"]
+            'role' => isset($data["role"])?$data["role"]:$res->role
         ]);
         $res->save();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);

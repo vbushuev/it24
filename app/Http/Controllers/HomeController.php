@@ -29,8 +29,8 @@ class HomeController extends Controller
     }
     public function goods(Request $rq)
     {
-        $user = $rq->user();
-        Log::debug($user->name." role:".$user->role_id);
+        //$user = $rq->user();
+        //Log::debug($user->name." role:".$user->role_id);
 
         return view('pages.goods',['panel'=>'goods']);
     }
@@ -56,5 +56,8 @@ class HomeController extends Controller
     {
         $this->authorize('uploads');
         return view('pages.catalog',['panel'=>'catalog']);
+    }
+    public function profile(Request $rq){
+        return view('pages.profile',['panel'=>'profile',"user"=>$rq->user()]);
     }
 }

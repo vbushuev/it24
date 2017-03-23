@@ -144,7 +144,8 @@ var page={
                 page.filters.get.brands();
                 page.filters.get.suppliers();
                 page.filters.get.catalogs();
-                $("body").trigger('it24:filters-loaded');
+                console.debug("#jscontent trigger it24:filters-loaded");
+                $("#jscontent").trigger('it24:filters-loaded');
             },
             roles:function(){
                 var jscontent = $(".roles").next("ul.dropdown-menu"),
@@ -218,7 +219,7 @@ var page={
                     type:"GET",
                     dataType:"json",
                     success:function(d){
-                        console.debug(d);
+                        store.catalogs = new Object();
                         for(var i in d){
                             var p=d[i],s='',h='<input class="filter-check" type="checkbox" onchange="{page.filters.filter.catalogs(this);}"/>';
                             store.catalogs[p.id] = p.title;
@@ -288,7 +289,7 @@ var page={
 }
 var store={
     roles:{},
-    catalogs:{}
+    catalogs:null
 }
 $(document).ready(function(){
     page.filters.get.all();
@@ -300,4 +301,8 @@ $(document).ready(function(){
         }
     });
     page.load();
+    $("#jscontent").on('it24:filters-loaded',function(){
+        console.debug('it24:filters-loaded');
+    });
+
 });

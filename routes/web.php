@@ -22,6 +22,7 @@ Route::get('/panel/schedules', 'HomeController@schedules');
 Route::get('/panel/users', 'HomeController@users');
 Route::get('/panel/downloads', 'HomeController@downloads');
 Route::get('/panel/catalog', 'HomeController@catalog');
+Route::get('/profile', 'HomeController@profile');
 
 Route::get('/data/suppliers', 'DataController@suppliers');
 Route::get('/data/supplierupdate', 'DataController@supplierupdate');
