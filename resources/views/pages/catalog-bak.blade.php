@@ -22,17 +22,11 @@
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="filters-navbar-collapse">
                         <form class="navbar-form navbar-left">
-                            <input type="hidden" name="parent_id" />
                             <div class="form-group">
                                 <input type="text" class="form-control search" placeholder="поиск" onkeyup="{page.filters.searchName($(this));}" name="search">
                             </div>
                         </form>
                         <ul class="nav navbar-nav navbar-right">
-                            <li>
-                                <a href="javascript:{$('#catalogs').modal();}" class="" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-eye"></i> Посмотреть
-                                </a>
-                            </li>
                             <li>
                                 <a href="javascript:{catalog.add();}" class="" role="button" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-plus"></i> Добавить
@@ -45,9 +39,10 @@
                 </div>
                 <!-- /.container-fluid -->
             </nav>
-            <h4>Каталог товаров</h4>
+            <h4>Внутренний каталог</h4>
         </div>
-
+        <div id="js-container" class="panel-body" data-ref="/data/catalog">
+        </div>
     </div>
     <!--<div class="row">
         <div class="col-md-10 col-md-offset-1">

@@ -39,6 +39,7 @@ Route::get('/data/uploads', 'DataController@uploads');
 Route::get('/data/uploads/progress', 'DataController@uploadsProgress');
 
 Route::get('/data/goods', 'DataController@goods');
+Route::get('/data/goodsfordownload', 'DataController@goodsfordownload');
 Route::get('/data/catalogs', 'DataController@catalogs');
 Route::get('/data/brands', 'DataController@brands');
 
@@ -51,5 +52,6 @@ Route::get('/data/roles', 'DataController@roles');
 
 Route::get('/data/catalog', 'DataController@catalog');
 Route::get('/data/catalog/edit', 'DataController@catalogedit');
+Route::get('/data/catalog/path', 'DataController@catalogpath');
 
 Route::get('/download', 'DataController@export');

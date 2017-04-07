@@ -41,15 +41,14 @@
             <div class="row heading">
                 <div class="col-md-2">Наименование</div>
                 <div class="col-md-4">Сервер</div>
-                <div class="col-md-4">Товары</div>
+                <div class="col-md-4">Товары/Каталоги</div>
                 <div class="col-md-1">Периодичность</div>
                 <div class="col-md-1"></div>
             </div>
 
         </div>
-        <div id="js-container" class="panel-body" data-ref="/data/schedules">
-        </div>
+        <div id="js-container" class="panel-body" data-ref="/data/schedules"></div>
     </div>
-    
+
 </div>
 @endsection

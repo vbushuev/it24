@@ -48,7 +48,9 @@
             <ul class="nav navbar-nav navbar-right">
                 <li @if(isset($panel)&&($panel=='goods'))class="active"@endif><a href="/panel/goods">Товары @if(isset($panel)&&($panel=='goods'))<span class="sr-only">(current)</span>@endif</a></li>
                 <li class="dropdown">
+                    @can('uploads')
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Настройки <span class="caret"></span></a>
+                    @endcan
                     <ul class="dropdown-menu">
                         @can('suppliers')
                         <li><a href="/panel/catalog">Каталог</a></li>

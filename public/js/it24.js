@@ -1,3 +1,14 @@
+var getKeys = function (obj, filter) {
+    var name,
+        result = [];
+
+    for (name in obj) {
+        if ((!filter || filter.test(name)) && obj.hasOwnProperty(name)) {
+            result[result.length] = name;
+        }
+    }
+    return result;
+}
 var priceNumber = function(d){
     var r = (d==null)?0:d, a = r.toString().split(/\./),na=[],n="",f="";
     if(d>=1000){
@@ -58,6 +69,19 @@ var barcodeDraw = function(c){
     ret = '<svg height="'+(h+32)+'" width="'+w*ib.length*16+'">'+ret+'</svg>';
     return ret;
 }
+var expander = function(t){
+    var $t = $(t),c = $t.next($t.attr("data-rel")+":first"),i = $t.find("i.fa");
+    if($t.hasClass("expander-expanded")){
+        $t.removeClass("expander-expanded");
+        i.removeClass("fa-caret-up").addClass("fa-caret-down");
+        c.slideUp();
+    }else {
+        $t.addClass("expander-expanded");
+        i.removeClass("fa-caret-down").addClass("fa-caret-up");
+        c.slideDown();
+    }
+    return false;
+}
 var page={
     noscroll:false,
     filters:{
@@ -67,6 +91,7 @@ var page={
             s:"",
             brand_id:"",
             supply_id:"",
+            parent_id:"",
             catalog_id:[]
         },
         search:function($t){
@@ -248,26 +273,40 @@ var page={
         page.filters.data.f=(page.filters.data.f<page.filters.data.l)?0:page.filters.data.f;
         page.load();
     },
+    loading:false,
     load:function(){
-        console.debug("loading page with data from "+$("#js-container").attr("data-ref"));
-        $.ajax({
-            url:$("#js-container").attr("data-ref"),
-            type:"GET",
-            data:page.filters.data,
-            dataType:"json",
-            beforeSend:function(){
-                if(!page.filters.data.f)$("#js-container").html("");
-            },
-            success:function(d){
-                if(typeof _contentLoader!="undefined")_contentLoader(d);
-            },
-            complete:function(){lock=false;},
+        //if(page.loading)return;
+        var what = arguments.length?arguments[0]:".js-container, #js-container";
+        console.debug("what = "+what);
+        $(what).each(function(){
+            var $t = $(this);
+            console.debug("loading page with data from "+$t.attr("data-ref"));
+            $.ajax({
+                url:$t.attr("data-ref"),
+                type:"GET",
+                data:page.filters.data,
+                dataType:"json",
+                beforeSend:function(){
+                    page.loading = true;
+                    if(!page.filters.data.f)$(this).html("");
+                },
+                success:function(d){
+                    var loader = $t.attr("data-func");
+                    console.debug(typeof(window[loader])+" "+typeof(_contentLoader));
+                    if(typeof(window[loader])=="function")window[loader](d);
+                    else if(typeof _contentLoader!="undefined")_contentLoader(d);
+                },
+                complete:function(){
+                    page.loading = false;
+                    $(document).trigger("page:loaded");
+                },
+            });
         });
     },
     submit:function(){
         if(!arguments.length)return;
         var p=arguments[0],args = {};
-        $(p.form+' input').each(function(){
+        $(p.form+' input:not(.no-request)').each(function(){
             var val = $(this).val();
             //todo add validate data
             //todo add check required
@@ -295,14 +334,13 @@ $(document).ready(function(){
     page.filters.get.all();
     $(window).scroll(function () {
         if(page.noscroll)return;
-        if(($(window).height() + $(window).scrollTop()+300) >= $(document).height() && !lock){
-            lock = true;
+        if(($(window).height() + $(window).scrollTop()+300) >= $(document).height()){
             page.load();
         }
     });
     page.load();
     $("#jscontent").on('it24:filters-loaded',function(){
-        console.debug('it24:filters-loaded');
+        //console.debug('it24:filters-loaded');
     });
 
 });

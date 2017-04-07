@@ -108,3 +108,72 @@ a .fa
     transition: all .2s ease-in;
 a:hover .fa
     color green
+.catalog
+    margin:0;
+    float:left;
+    width:16rem;
+    height:16rem;
+    position: relative;
+    text-align: center;
+    cursor: pointer;
+    padding: 2em 1em;
+    opacity:.8;
+    transition: opacity .4s ease-in;
+    a
+        text-decoration: none;
+    .fa
+        display: block;
+        transition: color .4s ease-in;
+.catalog:hover
+    opacity: 1
+    .fa
+        color:green
+.catalog-navigation
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    transition: all .4s ease-in;
+    .catalog-navigation-item
+        padding: .2em;
+        position: relative;
+        a
+            text-decoration: none;
+            color rgba(0,0,0,.7);
+        .catalog-title
+            font-wight: 100;
+        .catalog-title.catalog-checked
+            font-style: normal;
+            font-weight: 600;
+        .catalog-navigation
+            margin-left: 1em;
+        .catalog-goods-count
+            position: absolute;
+
+.catalog-good-item
+    display: block;
+    margin: 0;
+    float: left;
+    padding 1em;
+    width 13em;
+    height 13em;
+    position: relative;
+    text-align: center;
+    border solid 1px #fff;
+    border-radius: .2em;
+    transition: all .2s ease-in
+    overflow: hidden;
+    img
+        display: block;
+        margin 0 auto;
+    .catalog-good-title
+        margin-top: 1em;
+    .check-good
+        position: absolute;
+        left 1em;
+        top 1em
+.catalog-good-item.good-checked
+    background-color: rgba(0,0,0,.1);
+    .catalog-good-title
+        font-weight: 600
+.catalog-good-item:hover
+    border-color grey;

@@ -37,6 +37,7 @@
                                     <li role="separator" class="divider"></li>
                                 </ul>
                             </li>
+                            @can('uploads')
                             <li class="dropdown">
                                 <a href="javascript:0" class="dropdown-toggle suppliers" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Поставщики <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -44,6 +45,7 @@
                                     <li role="separator" class="divider"></li>
                                 </ul>
                             </li>
+                            @endcan
                         </ul>
                         <form class="navbar-form navbar-left" role="search">
                             <div class="form-group">

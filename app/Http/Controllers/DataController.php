@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DataController extends Controller{
+    protected $_catalog_goods_count;
     public function __construct(){
         //$this->middleware('auth');
     }
@@ -221,6 +222,22 @@ class DataController extends Controller{
         $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
+    public function goodsfordownload(Request $rq){
+        $from = $rq->input("f",0);
+        $sel = DB::table('goods')
+            ->join('brands','brands.id','=','goods.brand_id')
+            ->join('suppliers','suppliers.id','=','goods.supply_id')
+            ->join('goods_catalogs','goods_catalogs.good_id','=','goods.id')
+            ->join('catalogs','catalogs.id','=','goods_catalogs.catalog_id');
+        $this->filters($rq,$sel,"goods");
+        Log::debug("SQL: ".$sel->toSql());
+
+        $res = [
+            "quantity" => $sel->count(),
+            "amount" => $sel->sum('goods.price')
+        ];
+        return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
     public function export(Request $rq){
         $id = $rq->input("id","-1");
         $what = DB::table("download_schedules")->where("id","=",$id)->first();
@@ -232,6 +249,11 @@ class DataController extends Controller{
             file_put_contents($f,$e->xml($cats));
         }
         return response()->download($f);
+    }
+    public function catalogpath(Request $rq){
+        $id = $rq->input("id","");
+        $s= $this->_catalogpath($id);
+        return response()->json($s,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function catalog(Request $rq){
         $s = DB::table("catalogs");
@@ -246,6 +268,7 @@ class DataController extends Controller{
         foreach ($sel as $r) {
             $res[$r->id] = (array)$r;
             $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id);
+            $res[$r->id]["goods"]=DB::table("goods_catalogs")->where("catalog_id","=",$r->id)->count();
         }
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
@@ -256,8 +279,18 @@ class DataController extends Controller{
         foreach ($rows as $r) {
             $res[$r->id] = (array)$r;
             $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id);
+            $res[$r->id]["goods"]=DB::table("goods_catalogs")->where("catalog_id","=",$r->id)->count();
         }
         return $res;
+    }
+    protected function _catalogpath($id,$l=0){
+        $r = [];
+        $s = DB::table("catalogs")->where('id','=',$id)->first();
+        $r[$l] = [$id=>$s->title];
+        if(isset($s->parent_id)){
+            $r = array_merge($r,$this->_catalogpath($s->parent_id,++$l));
+        }
+        return $r;
     }
     public function catalogedit(Request $rq){
         $data = $rq->all();
