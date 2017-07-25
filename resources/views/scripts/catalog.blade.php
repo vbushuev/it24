@@ -485,5 +485,9 @@
         page.noscroll = true;
         store.catalogs = {};
         store.categories = {};
+        $('.modal').on('hidden.bs.modal', function () {
+            console.debug('model window closed');
+            document.location.reload();
+        });
     });
 </script>
