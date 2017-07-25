@@ -386,11 +386,20 @@ class DataController extends Controller{
         $res["catalogs"]= DB::table("catalogs")->where("id","=",$id)->delete();
         return $res;
     }
-    protected function linkCatalog($id,$data){
+    protected function linkCatalog($id,$data,$copy=false){
         $res = [];
         $res[]=["id"=>$id];
         $childs = DB::table("categories")->where("parent_id","=",$id)->get();
-        foreach ($childs as $child){$res=array_merge($res,$this->linkCatalog($child->id,$data));}
+        $catalog =$copy? DB::table("catalogs")->where("id","=",$data["internal_id"])->first():null;
+        foreach ($childs as $child){
+            if($copy){
+                $rc = $this->_catalogadd(["title"=>$child->title,"level"=>$catalog->level+1,"parent_id"=>$data["internal_id"]]);
+                Log::debug($rc);
+                $res=array_merge($res,$this->linkCatalog($child->id,["internal_id"=>$rc["id"]],$copy));
+            }
+            else $res=array_merge($res,$this->linkCatalog($child->id,$data));
+        }
+        unset($data["copy"]);
         DB::table("categories")->where("id","=",$id)->update($data);
         return $res;
     }
@@ -398,7 +407,9 @@ class DataController extends Controller{
         $data = $rq->all();
         unset($data["id"]);
         $id = $rq->input("id","-1");
-        $s = $this->linkCatalog($id,$data);
+        $copy = $rq->input("copy","-1");
+        $copy = ($copy=="1"||$copy=="true"||$copy==true)?true:false;
+        $s = $this->linkCatalog($id,$data,$copy);
         return response()->json($s,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function catalogunlink(Request $rq){
@@ -406,14 +417,15 @@ class DataController extends Controller{
         $s = $this->linkCatalog($id,["internal_id"=>null]);
         return response()->json($s,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
-    public function catalogadd(Request $rq){
-        $data = $rq->all();
-        $code = 500;
-        $s = DB::table("catalogs")->where("title","=",$rq->title)->get();
+    protected function _catalogadd($rq){
+        $q = DB::table("catalogs")->where("title","=",$rq["title"]);
+        if($rq["parent_id"]!="null"&&!is_null($rq["parent_id"])) $q->where("parent_id","=",$rq["parent_id"]);
+        $s = $q->get();
         $res = ["status"=>"unknown"];
+        $code = 500;
         if(!count($s)){
-            $data = ["title"=>$rq->title,"level"=>$rq->level];
-            if($rq->parent_id!="null"&&!is_null($rq->parent_id))$data["parent_id"]=$rq->parent_id;
+            $data = ["title"=>$rq["title"],"level"=>$rq["level"]];
+            if($rq["parent_id"]!="null"&&!is_null($rq["parent_id"]))$data["parent_id"]=$rq["parent_id"];
             $s = DB::table("catalogs")->insertGetId($data);
             $res = ["status"=>"ok","id"=>$s];
             $code = 200;
@@ -422,6 +434,13 @@ class DataController extends Controller{
             $res = ["status"=>"already"];
             $code = 304;
         }
+        $res["code"]=$code;
+        return $res;
+    }
+    public function catalogadd(Request $rq){
+        $data = $rq->all();
+        $res = $this->_catalogadd($rq->all());
+        $code = $res["code"];
         return response()->json($res,$code,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function goodPage(Request $rq){
