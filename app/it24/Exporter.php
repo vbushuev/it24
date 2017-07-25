@@ -2,16 +2,26 @@
 namespace it24;
 use DB;
 use Log;
+use App\GoodAdds;
 class Exporter{
     protected $catalogs=[];
     protected $products=[];
     protected $xmla=[];
-    public function __construct(){}
+    protected $job=0;
+    public function __construct($job){
+        $this->job = $job;
+    }
     protected function get($c=[],$p=[]){
         $db = DB::table('catalogs');
-        if(count($c))$db=$db->whereIn('id',$c);
+        if(!empty($c) && !is_null($c) && strtolower($c)!="null"){
+            if(!is_array($c))$c=preg_split("/,/m",$c);
+            $db=$db->whereIn('id',$c);
+        }
         $this->catalogs = $db->get();
-        $db = DB::table('goods')->leftJoin('goods_catalogs','goods.id','=','goods_catalogs.good_id')->join('brands','brands.id','=','goods.brand_id')
+        $db = DB::table('goods')
+            ->join('goods_categories','goods.id','=','goods_categories.good_id')
+            ->join('categories','categories.id','=','goods_categories.category_id')
+            ->join('brands','brands.id','=','goods.brand_id')
             ->select('goods.id',
                 'goods.image',
                 DB::raw("ifnull(goods.sku,'') as sku"),
@@ -27,19 +37,23 @@ class Exporter{
                 DB::raw("ifnull(goods.pack,'') as pack"),
                 DB::raw("ifnull(goods.price,'') as price"),
                 DB::raw("ifnull(goods.updated_at,'') as updated_at"),
-                'goods_catalogs.catalog_id',
+                'categories.internal_id as catalog_id',
                 'brands.title as brand',
                 DB::raw('(select quantity from uploads where good_id = goods.id order by timestamp desc limit 1) as quantity')
             );
-        if(count($p))$db=$db->whereIn('goods.id',$p);
+        if(!empty($p) && !is_null($p) && strtolower($p)!="null"){
+            if(!is_array($p))$p=preg_split("/,/m",$p);
+            $db=$db->whereIn('goods.id',$p);
+        }
         if(count($c)){
             $ct = [];
             foreach ($c as $k) {
                 $ct[]=$k;
                 $this->recursiveCatalogs($k,$ct);
             }
-            $db=$db->whereIn('goods_catalogs.catalog_id',$ct);
+            $db=$db->whereIn('categories.internal_id',$ct);
         }
+        Log::debug($db->toSQL());
         $this->products = $db->get();
     }
     public function xml($c=[],$p=[]){
@@ -69,6 +83,10 @@ class Exporter{
             ];
         }
         foreach($this->products as $product){
+            $gadds = GoodAdds::where('good_id',$product->id)->where('user_id',$this->job->user_id)->first();
+            $productPrice = (!is_null($gadds) || isset($gadds->id))
+                ?$productPrice = is_null($product->price)?"":($product->price+$product->price*($gadds->price_add/100))
+                :is_null($product->price)?"":($product->price+$product->price*($this->job->price_add/100));
             $this->xmla["offers"]["offer"][] = [
                 "@attributes" => [
                     "id" => $product->id,
@@ -81,47 +99,48 @@ class Exporter{
                 "param" =>[
                     [
                         "@attributes"=>["name"=>"price"],
-                        "@value"=>$product->price
+                        "@value"=>$productPrice
                     ],
                     [
                         "@attributes"=>["name"=>"brand"],
-                        "@value"=>$product->brand
+                        "@value"=>is_null($product->brand)?"":$product->brand
                     ],
                     [
                         "@attributes"=>["name"=>"barcode"],
-                        "@value"=>$product->barcode
+                        "@value"=>is_null($product->barcode)?"":$product->barcode
                     ],
                     [
                         "@attributes"=>["name"=>"width"],
-                        "@value"=>$product->width
+                        "@value"=>is_null($product->width)?"":$product->width
                     ],
                     [
                         "@attributes"=>["name"=>"height"],
-                        "@value"=>$product->height
+                        "@value"=>is_null($product->height)?"":$product->height
                     ],
                     [
                         "@attributes"=>["name"=>"depth"],
-                        "@value"=>$product->depth
+                        "@value"=>is_null($product->depth)?"":$product->depth
                     ],
                     [
                         "@attributes"=>["name"=>"unit"],
-                        "@value"=>$product->unit
+                        "@value"=>is_null($product->unit)?"":$product->unit
                     ],
                     [
                         "@attributes"=>["name"=>"weight"],
-                        "@value"=>$product->weight
+                        "@value"=>is_null($product->weight)?"":$product->weight
                     ],
                     [
                         "@attributes"=>["name"=>"box"],
-                        "@value"=>$product->pack
+                        "@value"=>is_null($product->pack)?"":$product->pack
                     ],
                     [
                         "@attributes"=>["name"=>"quantity"],
-                        "@value"=>$product->quantity
+                        "@value"=>is_null($product->quantity)?"":$product->quantity
                     ]/**/
                 ]
             ];
         }
+        //file_put_contents('xml_expa.json',json_encode($this->xmla,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
         $xml = Array2XML::createXML('xml_catalog', $this->xmla);
         return $xml->saveXML();
         /*

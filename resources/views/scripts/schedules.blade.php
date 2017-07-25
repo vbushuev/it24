@@ -23,17 +23,26 @@
                         <div class="input-group"><span class="input-group-addon" id="basic-addon4">Пароль:</span><input type="password" class="form-control inn" placeholder="Пароль" aria-describedby="basic-addon4" name="remote_pass" value=""></div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
                         <h4>Выбор товаров:</h4>
                     </div>
                     <div class="col-md-2 col-md-offset-1">
-                        <button type="button" class="btn btn-default" onclick="$('#catalogs').modal();">Выбрать товары</button>
+                        <button type="button" class="btn btn-default" onclick="catalog.clientCatalog()">Выбрать товары</button>
                         <input type="hidden" name="catalogs">
                         <input type="hidden" name="goods">
                     </div>
                     <div class="col-md-4" style="background-color:rgba(0,0,0,.1);padding:.5em;border-radius:2px;"><strong>Категорий:</strong> <span class="catalogs-name"></span> <a href="#" onclick="expander(this);" class="expander" data-rel=".catalogs-name-list"><i class="fa fa-caret-down"></i></a><div class="catalogs-name-list" style="display:none;"></div></div>
                     <div class="col-md-4" style="background-color:rgba(0,0,0,.1);padding:.5em;border-radius:2px;"><strong>Товаров:</strong> <span class="goods-name"></span> <a href="#" onclick="expander(this);" class="expander" data-rel=".goods-name-list"><i class="fa fa-caret-down"></i></a><div class="goods-name-list" style="display:none;"></div></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <h4>Общая наценка на все товары:</h4>
+                    </div>
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="input-group"><span class="input-group-addon" id="basic-addon2">%:</span><input type="number" class="form-control http-link" placeholder="Процент от стоимости товара" aria-describedby="basic-addon2" name="price_add" value=""></div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
@@ -74,7 +83,7 @@
         $('.periods button').removeClass('btn-primary');
         $('.periods button[data-ref='+p.period+']').addClass('btn-primary');
         for(var i in p)$('#add_schedule input[name='+i+']').val(p[i]);
-        if(typeof(p.catalogs)!="undefined" && typeof(store.catalogs)!="undefined"){
+        if(p.catalogs!=null && typeof(p.catalogs)!="undefined" && typeof(store.catalogs)!="undefined"){
             var a = p.catalogs.split(/,\s*/g),t=new Object();
             for(var i in a) {
                 var v = store.catalogs[a[i]];

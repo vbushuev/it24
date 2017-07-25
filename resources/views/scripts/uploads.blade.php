@@ -16,7 +16,7 @@
             s+= 'Начало:<b style="float:right;display:inline-block;">'+p.start.replace(dateExp,"$4:$5:$6")+'</b><br/>'
             s+= 'Окончание:<b style="float:right;display:inline-block;">'+((p.end!=null&&typeof(p.end)!="undefined")?p.end.replace(dateExp,"$4:$5:$6"):'')+'</b>'
             s+= '</div></div>';
-            s+= '<div class="col-md-2 summary">'+p.summary+'</div>';
+            s+= '<div class="col-md-2 summary">'+priceNumber(p.summary)+'</div>';
             s+= '<div class="col-md-1 total">'+p.total+'</div>';
             s+= '</div>';
             $("#js-container").append(s);

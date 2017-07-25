@@ -4,15 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Schedule extends Model
+class GoodAdds extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'download_schedules';
-    protected $fillable = ['title',"user_id","remote_srv","remote_user","remote_pass","period",'catalogs','goods','price_add'];
+    protected $table = 'goods_adds';
+    protected $fillable = ["user_id","good_id",'price_add'];
     /**
      * Indicates if the model should be timestamped.
      *

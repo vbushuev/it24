@@ -60,6 +60,23 @@
             for(var i in p)$('#user input[name='+i+']').val(p[i]);
             $('#user .modal-footer button.btn-primary').html('Обновить');
         },
+        remove:function(){
+            var user = arguments.length?arguments[0]:false;
+            if(user==false)return;
+            $.ajax({
+                url:"/data/user/remove",
+                dataType:"json",
+                data:{id:user},
+                success:function(d){
+                    console.debug(d);
+                    document.location.reload();
+                    //page.reload();
+                },
+                error:function(s,x,e){
+                    console.debug(s,x,e);
+                }
+            });
+        },
         loader:function(d){
             console.debug(d);
             for(var i = 0;i<d.length;++i){
@@ -72,7 +89,8 @@
                 s+= '<div class="col-md-2">'+p.created_at.replace(/(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,"$3.$2.$1 $4:$5:$6")+'</div>';
                 s+= '<div class="col-md-2"><div class="multirows">'+role+'</div></div>';
                 s+= '<div class="col-md-2">';
-                s+= '<a href="javascript:user.edit(\'raw_data_'+p.id+'\');"><i class="fa fa fa-2x fa-pencil"></i></a>&nbsp;';
+                s+= '<a href="javascript:user.edit(\'raw_data_'+p.id+'\');"><i class="fa fa-2x fa-pencil"></i></a>&nbsp;';
+                s+= '<a href="javascript:user.remove('+p.id+');"><i class="fa fa-2x fa-trash"></i></a>&nbsp;';
                 //s+= '<a href="javascript:download(\'raw_data_'+p.id+'\');"><i class="fa fa fa-2x fa-download" style="color:green;"></i></a>&nbsp;';
                 s+= '</div>';
                 s+= '<div id="raw_data_'+p.id+'" style="display:none">'+JSON.stringify(p)+'</div>';

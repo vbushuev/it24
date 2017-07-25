@@ -88,6 +88,6 @@
     @if(isset($panel))
     @include('scripts.'.$panel)
     @endif
-    <script src="{{ asset('js/it24.min.js') }}"></script>
+    <script src="{{ asset('js/it24.js') }}"></script>
 </body>
 </html>

@@ -1,3 +1,8 @@
+var leftPad = function(l){
+    var what = arguments.length>1?arguments[1]:" ",res="",length = parseInt(l),j=0;
+    while(j<length){res+=what;j++;}
+    return res;
+}
 var getKeys = function (obj, filter) {
     var name,
         result = [];
@@ -42,7 +47,7 @@ var periodTranslate=function(period){
     return period;
 }
 var barcodeDraw = function(c){
-    if(c=="0"||c==0)return "";
+    if(c=="0"||c==0||c==null||typeof(c)=="undefined")return "";
     var code39 = {}, ret = '',ib=c.split(""),bc="",w=1,h=48;
     code39["0"] = "bwbwwwbbbwbbbwbw";code39["1"] = "bbbwbwwwbwbwbbbw";code39["2"] = "bwbbbwwwbwbwbbbw";code39["3"] = "bbbwbbbwwwbwbwbw";
     code39["4"] = "bwbwwwbbbwbwbbbw";code39["5"] = "bbbwbwwwbbbwbwbw";code39["6"] = "bwbbbwwwbbbwbwbw";code39["7"] = "bwbwwwbwbbbwbbbw";
@@ -84,6 +89,7 @@ var expander = function(t){
 }
 var page={
     noscroll:false,
+    scrolled:false,
     filters:{
         data:{
             f:0,
@@ -92,6 +98,7 @@ var page={
             brand_id:"",
             supply_id:"",
             parent_id:"",
+            client_id:"",
             catalog_id:[]
         },
         search:function($t){
@@ -106,7 +113,7 @@ var page={
             var val = $t.val();
             if(val.length>3){
                 page.filters.data.f=0;
-                page.filters.data.n=val;
+                page.filters.data.s=val;
                 page.load();
             }
         },
@@ -169,8 +176,26 @@ var page={
                 page.filters.get.brands();
                 page.filters.get.suppliers();
                 page.filters.get.catalogs();
+                page.filters.get.clients();
                 console.debug("#jscontent trigger it24:filters-loaded");
                 $("#jscontent").trigger('it24:filters-loaded');
+            },
+            clients:function(){
+                var jscontent = $(".clients").next("ul.dropdown-menu");
+                if(jscontent.length==0)return;
+                $.ajax({
+                    url:"/data/users?role=client",
+                    type:"GET",
+                    dataType:"json",
+                    success:function(d){
+                        for(var i=0;i<d.length;++i){
+                            var p=d[i];
+                            store.clients[p.id]=p.name;
+                            jscontent.append('<li><a href="javascript:{page.filters.data.f=0;page.filters.data.client_id=\''+p.id+'\';page.load();}">'+(p.name.length?p.name:'noname')+'</a></li>');
+                            //combo.append('<li><a href="javascript:{$(\'input[name=client]\').val(\''+p.id+'\');$(\'input[name=clientName]\').val(\''+p.name+'\');}">'+(p.name.length?p.name:'noname')+'</a></li>');
+                        }
+                    }
+                });
             },
             roles:function(){
                 var jscontent = $(".roles").next("ul.dropdown-menu"),
@@ -207,7 +232,7 @@ var page={
             },
             suppliers:function(t){
                 var jscontent = $(".suppliers").next("ul.dropdown-menu");
-                if(jscontent.length==0)return;
+                //if(jscontent.length==0)return;
                 $.ajax({
                     url:"/data/suppliers",
                     type:"GET",
@@ -215,6 +240,7 @@ var page={
                     success:function(d){
                         for(var i=0;i<d.length;++i){
                             var p=d[i];
+                            store.suppliers[i]=d[i];
                             jscontent.append('<li><a href="javascript:{page.filters.data.f=0;page.filters.data.supply_id='+p.id+';page.load();}">'+p.title+'</a></li>');
                         }
                     }
@@ -275,12 +301,23 @@ var page={
     },
     loading:false,
     load:function(){
-        //if(page.loading)return;
-        var what = arguments.length?arguments[0]:".js-container, #js-container";
-        console.debug("what = "+what);
+        if(page.loading)return;
+        var what = arguments.length?arguments[0]:".js-container:visible, #js-container:visible";
         $(what).each(function(){
-            var $t = $(this);
-            console.debug("loading page with data from "+$t.attr("data-ref"));
+            console.debug('page.load',what);
+            var $t = $(this),
+                auto=(typeof($t.attr("data-auto")!="undefined")?$t.attr("data-auto"):"true"),
+                scroll = (typeof($t.attr("data-scroll")!="undefined")?$t.attr("data-scroll"):"true"),
+                from=(typeof($t.attr("data-from")!="undefined")?$t.attr("data-from"):page.filters.data.f),
+                paging=(typeof($t.attr("data-paging")!="undefined")?$t.attr("data-paging"):"false");
+            if(scroll=="false" && page.scrolled)return;
+            if(auto=="false"){
+                $t.attr("data-auto","true")
+                return;
+            }
+            from=(isNaN(parseInt(from)))?0:parseInt(from);
+            page.filters.data.f=from;
+            //console.debug("loading page with data from "+$t.attr("data-ref"));
             $.ajax({
                 url:$t.attr("data-ref"),
                 type:"GET",
@@ -288,13 +325,14 @@ var page={
                 dataType:"json",
                 beforeSend:function(){
                     page.loading = true;
-                    if(!page.filters.data.f)$(this).html("");
+                    if(!page.filters.data.f)$t.html("");
                 },
                 success:function(d){
                     var loader = $t.attr("data-func");
-                    console.debug(typeof(window[loader])+" "+typeof(_contentLoader));
-                    if(typeof(window[loader])=="function")window[loader](d);
-                    else if(typeof _contentLoader!="undefined")_contentLoader(d);
+                    console.debug(loader+" "+typeof(window[loader])+" "+typeof(_contentLoader));
+                    if(typeof(window[loader])=="function")window[loader](d,$t);
+                    else if(typeof _contentLoader!="undefined")_contentLoader(d,$t);
+                    $t.attr("data-from",parseInt(from)+parseInt(d.length));
                 },
                 complete:function(){
                     page.loading = false;
@@ -306,7 +344,7 @@ var page={
     submit:function(){
         if(!arguments.length)return;
         var p=arguments[0],args = {};
-        $(p.form+' input:not(.no-request)').each(function(){
+        $(p.form+' input:not(.no-request),'+p.form+' select,'+p.form+' textarea:not(.no-request)').each(function(){
             var val = $(this).val();
             //todo add validate data
             //todo add check required
@@ -322,20 +360,97 @@ var page={
                 $(p.form).modal('hide');
                 document.location.reload();
                 //page.reload();
+            },
+            error:function(s,x,e){
+                console.debug(s,x,e);
             }
         });
+    },
+    dataLoad:function(t){
+        var $t = $(t),dUrl = $t.attr("data-url"),dType = $t.attr("data-type"),dFunc = (arguments.length>1)?arguments[1]:$t.attr('data-func'),
+            dComboFunction=function(d){},
+            dListFunction=function(d){},
+            d={},s=$("input[name=s]").val();
+        if(s.length>3)d.s=s;
+        $.ajax({
+            url:dUrl,
+            data:d,
+            dataType:"json",
+            success:function(d){
+                switch(dType){
+                    case "list":dListFunction(d);break;
+                    case "combo":dComboFunction(d);break;
+                };
+                console.debug(dFunc,typeof(dFunc));
+                if(typeof(dFunc)=="function")dFunc(d);
+            }
+        });
+    },
+    loadpage:function(c,p){
+        page.filters.data.f = page.filters.data.l*(p-1);
+        page.scrolled = false;
+        $(c).attr("data-auto","true").attr("data-from",page.filters.data.f).html('');
+        console.debug("load page#"+p+" .from="+page.filters.data.f);
+        page.load(c);
+    },
+    paginator:function(container,f,l,c){
+        // <div class="paginator">
+        //     <ul>
+        //         <li><a href="javascript:page.load(0);">1</a></li>
+        //         <li><a href="javascript:page.load(24);">2</a></li>
+        //         <li><a href="javascript:page.load(48);">3</a></li>
+        //     </ul>
+        //
+        var s = '<div class="paginator"><ul>',p = Math.ceil(c/l),u = Math.floor(((f==0)?1:f)/l)+1;
+        console.debug("-----------------",container,f,l,c,p,u,"-----------------");
+        if(p<6){
+            for(var i = 1;i<=p;++i){
+                s+='<li'+(u==i?' class="current"':'')+'><a href="javascript:page.loadpage(\''+container+'\','+i+');">'+i+'</a></li>';
+            }
+        }
+        else{
+            var start=u-3,end=u+3;
+            if(start<=0){
+                end -=start;
+                start=1;
+            }
+            if(end>p){
+                start-=(end-p);
+                end = p;
+            }
+            if(u>1){
+                s+='<li'+(u==i?' class="current"':'')+'><a href="javascript:page.loadpage(\''+container+'\',1);"><i class="fa fa-backward"></i></a></li>';
+                s+='<li'+(u==i?' class="current"':'')+'><a href="javascript:page.loadpage(\''+container+'\','+(u-1)+');"><i class="fa fa-caret-left"></i></a></li>';
+            }
+            for(var i = start;i<=end;++i){
+                s+='<li'+(u==i?' class="current"':'')+'><a href="javascript:page.loadpage(\''+container+'\','+i+');">'+i+'</a></li>';
+            }
+            if(u<p){
+                s+='<li'+(u==i?' class="current"':'')+'><a href="javascript:page.loadpage(\''+container+'\','+(u+1)+');"><i class="fa fa-caret-right"></i></a></li>';
+                s+='<li'+(u==i?' class="current"':'')+'><a href="javascript:page.loadpage(\''+container+'\','+p+');"><i class="fa fa-forward"></i></a></li>';
+
+            }
+        }
+
+        s+='</ul></div>';
+        return s;
     }
 }
 var store={
     roles:{},
-    catalogs:null
+    clients:{},
+    catalogs:null,
+    suppliers:{}
 }
 $(document).ready(function(){
     page.filters.get.all();
     $(window).scroll(function () {
-        if(page.noscroll)return;
+        //if(page.noscroll)return;
+
         if(($(window).height() + $(window).scrollTop()+300) >= $(document).height()){
+            page.scrolled = true;
             page.load();
+            //page.scrolled = false;
         }
     });
     page.load();

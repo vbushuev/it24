@@ -59,7 +59,7 @@ class Product extends Common{
         }
         $this->_properties["image"] = "S".str_pad($this->id, 10, "0", STR_PAD_LEFT).".".$pi['extension'];
         //echo "CURRENT WORKING DIR \t".getcwd()."\n";
-        $imgdir = file_exists("/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/")?"/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/":"public/img";
+        $imgdir = file_exists("/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/")?"/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/":"/Applications/AMPPS/www/it24/public/img/";
         if(!file_exists($imgdir.$this->image))$this->loadImage($this->image_url,$imgdir.$this->image);
         DB::table('goods')->where("id","=",$this->id)->update([
             "image"=>$this->image
@@ -79,21 +79,21 @@ class Product extends Common{
             $p = DB::table('categories')
                 ->where([['external_id','=',$this->external_category_id],['supply_id','=',$this->supply_id]])
                 ->first();
-            $cat_id="";
-            $ext_id = $p->id;
-            while(empty($cat_id)&&!is_null($ext_id)){
-                if(isset($p->internal_id)&&!is_null($p->internal_id)) $cat_id=$p->internal_id;
-                else $ext_id = $p->parent_id;
-                $p = DB::table('categories')
-                    ->where([['id','=',$ext_id],['supply_id','=',$this->supply_id]])
-                    ->orWhere([['id','=',$ext_id],['supply_id','=',$this->supply_id]])
-                    ->first();
-            }
+            $cat_id=$p->id;
+            // $ext_id = $p->id;
+            // while(empty($cat_id)&&!is_null($ext_id)){
+            //     if(isset($p->internal_id)&&!is_null($p->internal_id)) $cat_id=$p->internal_id;
+            //     else $ext_id = $p->parent_id;
+            //     $p = DB::table('categories')
+            //         ->where([['id','=',$ext_id],['supply_id','=',$this->supply_id]])
+            //         ->orWhere([['id','=',$ext_id],['supply_id','=',$this->supply_id]])
+            //         ->first();
+            // }
             if(!empty($cat_id)){
-                $exists = DB::table('goods_catalogs')->where(["good_id"=>$this->id,"catalog_id"=>$cat_id])->first();
-                if(!isset($exists->id))DB::table('goods_catalogs')->insert(["good_id"=>$this->id,"catalog_id"=>$cat_id]);
+                $exists = DB::table('goods_categories')->where(["good_id"=>$this->id,"category_id"=>$cat_id])->first();
+                if(!isset($exists->id))DB::table('goods_categories')->insert(["good_id"=>$this->id,"category_id"=>$cat_id]);
             }
-        }catch(\Exception $e){}
+        }catch(\Exception $e){Log::error($e);}
     }
     protected function loadImage($url,$f){
         try{

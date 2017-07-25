@@ -19,3 +19,7 @@ Homestead.yaml
 *.jpeg
 
 *.xml
+
+ut-p2017-05-25.json
+/*.xml
+/*.json

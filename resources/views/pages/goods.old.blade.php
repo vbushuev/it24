@@ -63,8 +63,8 @@
                 <!-- /.container-fluid -->
             </nav>
 
-            <h4>Товары</h4>
-            <!-- <div class="row heading">
+            <h4>Загрузки от поставщиков</h4>
+            <div class="row heading">
                 <div class="col-md-1"></div>
                 <div class="col-md-2">Идентификатор</div>
                 <div class="col-md-3">Бренд/Наименование</div>
@@ -72,14 +72,9 @@
                 <div class="col-md-1">Цена</div>
                 <div class="col-md-1">min</div>
                 <div class="col-md-2">Параметры</div>
-            </div> -->
-        </div>
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-md-4 js-container catalog-container" data-ref="/data/catalogs" data-func="catalogLoader"></div>
-                <div class="col-md-8 js-container goods-container" data-ref="/data/goods" data-func="goodsLoader"></div>
             </div>
-
+        </div>
+        <div id="js-container" class="panel-body" data-ref="/data/goods">
         </div>
     </div>
     <!--<div class="row">

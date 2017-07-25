@@ -42,8 +42,9 @@ class DownloadsIT24 extends Command
     {
         ini_set('max_execution_time', 900);
         $select =  DB::table('download_schedules')
-            ->whereRaw('not exists(select 1 from download_transactions where download_transactions.schedule_id = download_schedules.id and download_transactions.status_id=1 and date_add(download_transactions.timestamp,INTERVAL -1440 MINUTE) <= now())')
             ->whereRaw('date_add(ifnull(download_schedules.last,date_add(now(),INTERVAL -10 DAY)),INTERVAL period MINUTE) <= now()')
+            ->whereRaw('not exists(select 1 from download_transactions where download_transactions.schedule_id = download_schedules.id and download_transactions.status_id=1 and date_add(download_transactions.timestamp,INTERVAL -1440 MINUTE) <= now())')
+
             ->orderBy('download_schedules.last','asc');
         Log::debug($select->toSql());
         $job = $select->first();
@@ -51,22 +52,22 @@ class DownloadsIT24 extends Command
         DB::table('download_schedules')->where('id','=',$job->id)->update(['last'=>date('Y-m-d H:i:s')]);
         $job_id = DB::table('download_transactions')->insertGetId(["schedule_id"=>$job->id,"user_id"=>$job->user_id,"status_id"=>1,"error_id"=>"0"]);
         try{
-            Log::debug("Download transaction:".$job_id);
-            $exp = new Exporter();
+            Log::debug("Download transaction: ".json_encode($job,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
+            $exp = new Exporter($job);
 
             //$file = "../../../storage/downloads/user_".$job->user_id."-".date("Y-m-d_H-i-s").".xml";
             $file = "clnt_".$job->user_id."-".date("Y-m-d_H-i-s").".xml";
             Log::debug("File:".$file);
-            $str = $exp->xml([1,2,3,4]);
+            $str = $exp->xml($job->catalogs,$job->goods);
 
             file_put_contents($file,$str);
             $total=0;$summary=0;
 
             // установка соединения
-            $srv =preg_split("'/'",$job->remote_srv);
+            $srv =preg_split("/\//",$job->remote_srv);
             Log::debug("ftp connect to :".$srv[0]);
             $conn_id = ftp_connect($srv[0]);
-            $remote_file = "/".$srv[1]."/".$file;
+            $remote_file = "/".(isset($srv[1])?$srv[1]."/":"").$file;
             // проверка имени пользователя и пароля
             Log::debug("ftp login with :".$job->remote_user);
             $login_result = ftp_login($conn_id, $job->remote_user,$job->remote_pass);
@@ -99,7 +100,7 @@ class DownloadsIT24 extends Command
                 "status_id"=>2,
                 "time_end"=>date("Y-m-d H:i:s"),
                 "message"=>$e->getMessage(),
-                "error_id"=>$error_id
+                "error_id"=>2
             ]);
         }
     }
