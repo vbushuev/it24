@@ -93,13 +93,16 @@
             $('#catalog .categories-list').html('');
         },
         linkCategory2Catalog:function(c,id){
+            var dt = {
+                internal_id:id,
+                id:c,
+                copy:false
+            };
+            dt.copy = confirm("Копировать структуру каталога поставщика");
             $.ajax({
                 url:"/data/catalog/link",
                 dataType:"json",
-                data:{
-                    internal_id:id,
-                    id:c
-                },
+                data:dt,
                 success:function(d){
                     console.debug(d);
                     for(var i in d) {
