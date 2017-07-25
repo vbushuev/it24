@@ -408,7 +408,9 @@ class DataController extends Controller{
         unset($data["id"]);
         $id = $rq->input("id","-1");
         $copy = $rq->input("copy","-1");
-        $copy = ($copy=="1"||$copy=="true"||$copy==true)?true:false;
+        Log::debug("COPY=".$copy);
+        $copy = ($copy=="true")?true:false;
+        Log::debug("COPY[".$copy."]=".($copy?"true":"false"));
         $s = $this->linkCatalog($id,$data,$copy);
         return response()->json($s,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
