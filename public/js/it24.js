@@ -302,8 +302,9 @@ var page={
     loading:false,
     load:function(){
         if(page.loading)return;
-        var what = arguments.length?arguments[0]:".js-container:visible, #js-container:visible";
-        $(what).each(function(){
+        var what = arguments.length?arguments[0]:".js-container:visible, #js-container:visible",
+            $what = (typeof(what)=="string")?$(what):what;
+        $what.each(function(){
             console.debug('page.load',what);
             var $t = $(this),
                 auto=(typeof($t.attr("data-auto")!="undefined")?$t.attr("data-auto"):"true"),
@@ -389,7 +390,8 @@ var page={
     loadpage:function(c,p){
         page.filters.data.f = page.filters.data.l*(p-1);
         page.scrolled = false;
-        $(c).attr("data-auto","true").attr("data-from",page.filters.data.f).html('');
+        $c = (typeof(c)=="string")?$(c):c;
+        $c.attr("data-auto","true").attr("data-from",page.filters.data.f).html('');
         console.debug("load page#"+p+" .from="+page.filters.data.f);
         page.load(c);
     },
