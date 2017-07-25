@@ -39,8 +39,23 @@
                     <div class="col-md-10 col-md-offset-1">
                         <div class="input-group"><input type="text" onkeyup="catalog.categorySearch()" class="form-control" placeholder="Поиск" aria-describedby="basic-addon1" name="s" value=""></div>
                     </div>
-                    <div class="col-md-4 col-md-offset-1 categories-list" data-url="/data/categories" data-scroll="false"></div>
-                    <div id="categoryGoodsPage" class="col-md-6 col-md-offset-1 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                    <div class="col-md-10 col-md-offset-1">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a data-toggle="pill" href="#linked">Добавленные</a></li>
+                            <li><a data-toggle="pill" href="#unlinked">Непривязанные</a></li>
+                        </ul>
+                        <div class="row tab-pane fade in active" id="linked">
+                            <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
+                            <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                        </div>
+                        <div class="row tab-pane fade" id="unlinked">
+                            <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
+                            <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
             <div class="modal-footer">
@@ -173,12 +188,19 @@
                 }
                 return s;
             },edit = $('#catalog input[name=id]').val(),p = JSON.parse($('#catalog-raw-data-'+edit).text());;
-            $('#catalog .categories-list').each(function(){
-                var $t = $(this),internal = p;
+            $('#catalog #linked .categories-list').each(function(){
+                var $t = $(this),internal = p,$tt=$('#catalog #unlinked .categories-list');
                 page.dataLoad(this,function(d){
                     $t.html('');
-                    var f = recursivecatalogs(d,$t,internal);
-                    f.show();
+                    $tt.html('');
+                    var ld=[],ud=[];
+                    for(var i in d){
+                        if(typeof(d[i].internal_id)!="undefined" && d[i].internal_id!=null)ld.push(d[i]);
+                        else ud.push(d[i]);
+                    }
+                    var f = recursivecatalogs(ld,$t,internal)
+                        ff = recursivecatalogs(ud,$tt,internal);
+                    f.show();ff.show();
                 });
             });
         },
@@ -335,9 +357,12 @@
             (auto)?catalog.goodsfordownload():{};
         },
         expand:function(i){
-            var $t = $("a[data-id="+i+"]");
+            var $t = $("a[data-id="+i+"]"),
+                goodsPane = $t.closest(".tab-pane").find(".goods-container");
+            console.debug($t,goodsPane.length);
             catalog.container=$("li[data-id="+i+"] > ul");
-            $(".goods-container").attr("data-from","0").html("");
+
+            goodsPane.attr("data-from","0").html("");
             if($t.find(".fa").hasClass('catalog-expanded')){
                 catalog.container.hide();
                 $t.find(".fa").removeClass('catalog-expanded');
@@ -353,7 +378,8 @@
                 catalog.container.show();
             }
 
-            ($t.hasClass("external"))?page.loadpage('#categoryGoodsPage',1):page.loadpage('#pageGoods',1);
+            // ($t.hasClass("external"))?page.loadpage('#categoryGoodsPage',1):page.loadpage('#pageGoods',1);
+            ($t.hasClass("external"))?page.loadpage(goodsPane,1):page.loadpage('#pageGoods',1);
         },
         clientCatalog:function(){
             $("#catalogs").modal();
