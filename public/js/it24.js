@@ -459,5 +459,11 @@ $(document).ready(function(){
     $("#jscontent").on('it24:filters-loaded',function(){
         //console.debug('it24:filters-loaded');
     });
-
+    // $(".modal").on('shown.bs.modal', function () {
+    $(".modal").on('hidden.bs.modal', function () {
+        console.debug("hidden.bs.modal:" + $(this));
+    });
+    $("[data-dismiss=modal]").on("click",function(){
+        
+    });
 });

@@ -44,13 +44,15 @@
                             <li class="active"><a data-toggle="pill" href="#linked">Добавленные</a></li>
                             <li><a data-toggle="pill" href="#unlinked">Непривязанные</a></li>
                         </ul>
-                        <div class="row tab-pane fade in active" id="linked">
-                            <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
-                            <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
-                        </div>
-                        <div class="row tab-pane fade" id="unlinked">
-                            <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
-                            <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="linked">
+                                <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
+                                <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                            </div>
+                            <div class="tab-pane fade" id="unlinked">
+                                <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
+                                <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -244,7 +246,7 @@
                 units = (p.unit==0)?'шт':p.unit,
                 id = 'S'+('0000000000'+p.id).substring(p.id.length),
                 img = '/img/'+p.image;;
-            s+= '<div class="modal fade" id="good_'+p.id+'" data-rel="/data/good/adds"><div class="modal-dialog modal-lg"><div class="modal-content">';
+            s+= '<div class="modal" id="good_'+p.id+'" data-rel="/data/good/adds"><div class="modal-dialog modal-lg"><div class="modal-content">';
             s+= '   <input type="hidden" name="id" value="'+p.id+'">';
             s+= '   <div class="modal-header"><h3 class="modal-title"><span class="supplier-title" id="title_'+p.id+'">'+p.title+'</span><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></h3>';
             s+= '       <h5 class="category" data-id="'+p.category_id+'">'+p.category+'</h5>';
@@ -282,6 +284,7 @@
             s+= '</div></div></div><!--end .modal-->';
             $('body').append(s);
             $("#good_"+p.id).modal();
+            // $(s).appendTo('body').modal();
         },
         checkGood:function(i){
             var $t = $(".check-good[data-id="+i+"] > i.fa"),n=$(".catalog-good-item[data-id="+i+"] > .catalog-good-title"),p = $(".catalog-good-item[data-id="+i+"]")

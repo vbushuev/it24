@@ -51,7 +51,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://it24.bs2'),
+    'url' => env('APP_URL', 'http://analyze-it.su'),
 
     /*
     |--------------------------------------------------------------------------
@@ -120,9 +120,9 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'daily'),
-    'log_max_files' => 15,
-    'log_level' => env('APP_LOG_LEVEL', 'debug'),
+    'log' => env('APP_LOG', 'single'),
+    'log_max_files' => 128,
+    'log_level' => env('APP_LOG_LEVEL', 'error'),
 
     /*
     |--------------------------------------------------------------------------
