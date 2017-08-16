@@ -382,7 +382,7 @@ var page={
                     case "list":dListFunction(d);break;
                     case "combo":dComboFunction(d);break;
                 };
-                console.debug(dFunc,typeof(dFunc));
+                // console.debug(dFunc,typeof(dFunc));
                 if(typeof(dFunc)=="function")dFunc(d);
             }
         });
@@ -464,6 +464,6 @@ $(document).ready(function(){
         console.debug("hidden.bs.modal:" + $(this));
     });
     $("[data-dismiss=modal]").on("click",function(){
-        
+
     });
 });

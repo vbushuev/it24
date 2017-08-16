@@ -43,6 +43,7 @@
                         <ul class="nav nav-tabs">
                             <li class="active"><a data-toggle="pill" href="#linked">Добавленные</a></li>
                             <li><a data-toggle="pill" href="#unlinked">Непривязанные</a></li>
+                            <li><a data-toggle="pill" href="#linked_other">Добавлены в другие каталоги</a></li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade in active" id="linked">
@@ -50,6 +51,10 @@
                                 <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
                             </div>
                             <div class="tab-pane fade" id="unlinked">
+                                <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
+                                <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
+                            </div>
+                            <div class="tab-pane fade" id="linked_other">
                                 <div class="col-md-5 categories-list" data-url="/data/categories" data-scroll="false"></div>
                                 <div id="categoryGoodsPage" class="col-md-7 goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false"></div>
                             </div>
@@ -155,7 +160,7 @@
 
             var p = JSON.parse($('#catalog-raw-data-'+edit).text());
             for(var i in p)$('#catalog input[name='+i+'],#catalog select[name='+i+']').val(p[i]);
-            catalog.categorySearch();
+            catalog.categorySearch(edit);
             // $('#catalog .categories-list').each(function(){
             //     var $t = $(this),internal = p;
             //     page.dataLoad(this,function(d){
@@ -181,7 +186,7 @@
             s+= '</li>';
             return s;
         },
-        categorySearch:function(){
+        categorySearch:function(catid){
             var recursivecatalogs=function(d,ss,internal){
                 var s = $('<ul class="catalog-navigation" style="display:none;"></ul>').appendTo(ss);
                 for(var i in d){
@@ -192,20 +197,26 @@
                     }
                 }
                 return s;
-            },edit = $('#catalog input[name=id]').val(),p = JSON.parse($('#catalog-raw-data-'+edit).text());;
+            },edit = catid, p = JSON.parse($('#catalog-raw-data-'+edit).text());;
             $('#catalog #linked .categories-list').each(function(){
-                var $t = $(this),internal = p,$tt=$('#catalog #unlinked .categories-list');
+                var $t = $(this),internal = p,$tt=$('#catalog #unlinked .categories-list'),$ttt=$('#catalog #linked_other .categories-list');
+                console.debug(internal);
                 page.dataLoad(this,function(d){
                     $t.html('');
                     $tt.html('');
-                    var ld=[],ud=[];
+                    $ttt.html('');
+                    var ld=[],ud=[],lo=[];
                     for(var i in d){
-                        if(typeof(d[i].internal_id)!="undefined" && d[i].internal_id!=null)ld.push(d[i]);
+                        if( d[i].internal_id!= undefined && d[i].internal_id != null ){
+                            if( parseInt(d[i].internal_id) == parseInt(internal.id) ) ld.push(d[i]);
+                            else lo.push(d[i]);
+                        }
                         else ud.push(d[i]);
                     }
                     var f = recursivecatalogs(ld,$t,internal)
-                        ff = recursivecatalogs(ud,$tt,internal);
-                    f.show();ff.show();
+                        ff = recursivecatalogs(ud,$tt,internal),
+                        fff = recursivecatalogs(lo,$ttt,internal);
+                    f.show();ff.show();fff.show();
                 });
             });
         },
