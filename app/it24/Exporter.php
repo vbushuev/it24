@@ -3,6 +3,7 @@ namespace it24;
 use DB;
 use Log;
 use App\GoodAdds;
+use App\Supplier;
 class Exporter{
     protected $catalogs=[];
     protected $products=[];

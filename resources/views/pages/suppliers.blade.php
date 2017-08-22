@@ -38,8 +38,9 @@
             <h4>Поставщики</h4>
             <div class="row heading">
                 <div class="col-md-2">Наименование</div>
-                <div class="col-md-4">Протокол/ссылка</div>
+                <div class="col-md-3">Протокол/ссылка</div>
                 <div class="col-md-2">ИНН</div>
+                <div class="col-md-1">Наценка</div>
                 <div class="col-md-2">Дата последней загрузки</div>
                 <div class="col-md-1">Периодичность</div>
                 <div class="col-md-1"></div>

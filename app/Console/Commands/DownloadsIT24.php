@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use DB;
 use Log;
 use it24\Exporter as Exporter;
+use app\Supplier;
+
 use Illuminate\Console\Command;
 
 class DownloadsIT24 extends Command

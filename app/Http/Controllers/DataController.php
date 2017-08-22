@@ -80,7 +80,8 @@ class DataController extends Controller{
                 "title"=>$rq->input("title"),
                 "link"=>$rq->input("link"),
                 "code"=>$rq->input("code"),
-                "inn"=>$rq->input("inn")
+                "inn"=>$rq->input("inn"),
+                "price_add"=>$rq->input("price_add","0"),
             ]);
         $res = DB::table('schedules')->where("supply_id","=",$rq->input("id",-1))
                 ->update(["period"=>$rq->input("period")]);
@@ -97,6 +98,7 @@ class DataController extends Controller{
                 'suppliers.inn',
                 'suppliers.code',
                 'suppliers.link',
+                'suppliers.price_add',
                 'schedules.id as schedule_id',
                 'schedules.period',
                 'schedules.last',

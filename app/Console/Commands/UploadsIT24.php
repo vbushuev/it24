@@ -47,7 +47,7 @@ class UploadsIT24 extends Command
         //$jobs = DB::table('schedules')
         ini_set('max_execution_time', 900);
         $select = DB::table('schedules')
-            ->select('schedules.id as schedule_id','schedules.period','schedules.last','suppliers.title','suppliers.code','schedules.supply_id','schedules.protocol_id','suppliers.link')
+            ->select('schedules.id as schedule_id','schedules.period','schedules.last','suppliers.title','suppliers.code','schedules.supply_id','schedules.protocol_id','suppliers.link','suppliers.price_add')
             ->join('suppliers','suppliers.id','=','schedules.supply_id')
             ->whereRaw('date_add(ifnull(schedules.last,date_add(now(),INTERVAL -10 DAY)),INTERVAL period MINUTE) <= now()')
             ->orWhereRaw('not exists(select 1 from upload_transactions where upload_transactions.status_id in (1) and upload_transactions.timestamp>date_add(now(),INTERVAL -schedules.period-30 MINUTE) and upload_transactions.schedule_id=schedules.id)')

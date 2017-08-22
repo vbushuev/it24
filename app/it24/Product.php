@@ -5,11 +5,15 @@ use Log as Log;
 use it24\Common as Common;
 
 class Product extends Common{
-    public function __construct($a = []){
+    protected $price_add;
+    public function __construct($a = [],$price_add = 0){
         $this->loadFromArray($a);
+        $this->price_add = $price_add;
     }
     public function store(){
         $this->_properties["title"] = ((!isset($this->_properties["title"]))||empty($this->_properties["title"])||$this->_properties["title"]=="")?"notitle":$this->_properties["title"];
+        $amount = $this->amount;
+        $amount += $amount * ($this->price_add/100);
         //Log::debug("Check Product ".$this->title);
         $this->dropEmpty();
         $pi = pathinfo($this->image_url);
@@ -32,7 +36,7 @@ class Product extends Common{
                 "certificate" => $this->certificate,
                 "description" => $this->description,
                 "pack"=>$this->pack,
-                "price"=>$this->amount,
+                "price"=>$amount,
                 "updated_at"=>date("Y-m-d H:i:s")
             ]);
         }
@@ -41,7 +45,7 @@ class Product extends Common{
             $brand = DB::table('brands')->where('title','=',$this->brand)->first();
             $this->_properties["brand_id"] = (!isset($brand->id))?DB::table('brands')->insertGetId(['title'=>$this->brand]):$brand->id;
             $ins = $this->_properties;
-            $ins["price"] = $ins["amount"];
+            $ins["price"] = $amount;
             unset($ins["external_category_id"]);
             unset($ins["image_url"]);
             unset($ins["quantity"]);

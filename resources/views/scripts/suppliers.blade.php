@@ -6,8 +6,9 @@
 
             s= '<div class="row item" data-rel="'+p.id+'">';
             s+= '<div class="col-md-2"><b>'+p.title+'</b></div>';
-            s+= '<div class="col-md-4"><div class="multirows">'+p.protocol+'<br/><i style="color:blue;">'+p.link.substr(0,32)+'...'+'</i></div></div>';
+            s+= '<div class="col-md-3"><div class="multirows">'+p.protocol+'<br/><i style="color:blue;">'+p.link.substr(0,32)+'...'+'</i></div></div>';
             s+= '<div class="col-md-2">'+p.inn+'</div>';
+            s+= '<div class="col-md-1">'+p.price_add+'%</div>';
             s+= '<div class="col-md-2">'+p.last.replace(dateExp,"$3.$2.$1 $4:$5:$6")+'</div>';
             s+= '<div class="col-md-1"><div class="multirows">'+periodTranslate(p.period)+'</div></div>';
             s+= '<div class="col-md-1"><a href="javascript:$(\'#supplier_'+p.id+'\').modal();"><i class="fa fa fa-pencil edit-supplier" style="color:green;"></i></a></div>';
@@ -29,6 +30,9 @@
             s+= '       </div>';
             s+= '       <div class="col-md-6">';
             s+= '           <div class="input-group"><span class="input-group-addon" id="basic-addon3">ИНН:</span><input type="text" class="form-control inn" placeholder="Наименование" aria-describedby="basic-addon3" name="inn" value="'+p.inn+'"></div>';
+            s+= '       </div>';
+            s+= '       <div class="col-md-12">';
+            s+= '           <div class="input-group"><span class="input-group-addon" id="basic-addon3">Наценка на все товары:</span><input type="text" class="form-control inn" placeholder="Наценка" aria-describedby="basic-addon3" name="price_add" value="'+p.price_add+'"></div>';
             s+= '       </div>';
             s+= '   </div>';
             s+= '   <div class="row"><h4>Расписание:</h4>';

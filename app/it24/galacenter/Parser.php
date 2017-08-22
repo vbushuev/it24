@@ -76,7 +76,7 @@ class Parser extends Common{
                 else if($param['name'] == 'store_ekb')$a["quantity"]=$param->__toString();
             }
             $a["quantity"] = (($a["quantity"]==2)?3:1)*$a["pack"];
-            $o = new Product($a);
+            $o = new Product($a,$job->price_add);
             $o->store();
             file_put_contents($_doneFile,json_encode($_done));
         }
