@@ -119,7 +119,7 @@
         for(var i = 0;i<d.length;++i){
             var p=d[i], dateExp = /(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,status_ico='<i class="fa fa-2x fa-circle-o-notch" aria-hidden="true"></i>',
                 catalogs = (p.catalogs=='null'||p.catalogs==null)?[]:p.catalogs.split(/,\s*/g)
-                goods = (p.goods==null)?[]:p.goods;
+                goods = (p.goods==null)?[]:p.goods.split(',');
             s= '<div class="row item" data-rel="'+p.id+'">';
             s+= '<div class="col-md-2"><b>'+p.title+'</b></div>';
             s+= '<div class="col-md-4"><div class="multirows"><i style="color:blue;">'+p.remote_srv.substr(0,32)+'...'+'</i></div></div>';

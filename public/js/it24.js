@@ -177,7 +177,7 @@ var page={
                 page.filters.get.suppliers();
                 page.filters.get.catalogs();
                 page.filters.get.clients();
-                console.debug("#jscontent trigger it24:filters-loaded");
+                // console.debug("#jscontent trigger it24:filters-loaded");
                 $("#jscontent").trigger('it24:filters-loaded');
             },
             clients:function(){
@@ -305,12 +305,13 @@ var page={
         var what = arguments.length?arguments[0]:".js-container:visible, #js-container:visible",
             $what = (typeof(what)=="string")?$(what):what;
         $what.each(function(){
-            console.debug('page.load',what);
+            // console.debug('page.load',what);
             var $t = $(this),
                 auto=(typeof($t.attr("data-auto")!="undefined")?$t.attr("data-auto"):"true"),
                 scroll = (typeof($t.attr("data-scroll")!="undefined")?$t.attr("data-scroll"):"true"),
                 from=(typeof($t.attr("data-from")!="undefined")?$t.attr("data-from"):page.filters.data.f),
-                paging=(typeof($t.attr("data-paging")!="undefined")?$t.attr("data-paging"):"false");
+                paging=(typeof($t.attr("data-paging")!="undefined")?$t.attr("data-paging"):"false"),
+                sort=(typeof($t.attr("data-sort")!="undefined")?$t.attr("data-sort"):null);
             if(scroll=="false" && page.scrolled)return;
             if(auto=="false"){
                 $t.attr("data-auto","true")
@@ -318,6 +319,7 @@ var page={
             }
             from=(isNaN(parseInt(from)))?0:parseInt(from);
             page.filters.data.f=from;
+            if(sort!=null)page.filters.data.sort=sort;
             //console.debug("loading page with data from "+$t.attr("data-ref"));
             $.ajax({
                 url:$t.attr("data-ref"),
@@ -330,7 +332,7 @@ var page={
                 },
                 success:function(d){
                     var loader = $t.attr("data-func");
-                    console.debug(loader+" "+typeof(window[loader])+" "+typeof(_contentLoader));
+                    console.debug(loader+" "+typeof(window[loader])+" "+typeof(_contentLoader),d);
                     if(typeof(window[loader])=="function")window[loader](d,$t);
                     else if(typeof _contentLoader!="undefined")_contentLoader(d,$t);
                     $t.attr("data-from",parseInt(from)+parseInt(d.length));

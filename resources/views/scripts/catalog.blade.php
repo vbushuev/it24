@@ -13,7 +13,9 @@
                         <div id="pageGoods" class="col-md-8 js-container goods-container" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="true" data-scroll="false"></div>
                     </div>
                 </div>
-                <div class="modal-footer"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Сохранить</button>
+                </div>
             </div>
         </div>
     </div>
@@ -37,7 +39,12 @@
                         <div class="input-group"><span class="input-group-addon" id="basic-addon3">Родительский:</span><select class="form-control" placeholder="" aria-describedby="basic-addon3" name="parent_id"></select></div>
                     </div>
                     <div class="col-md-10 col-md-offset-1">
-                        <div class="input-group"><input type="text" onkeyup="catalog.categorySearch()" class="form-control" placeholder="Поиск" aria-describedby="basic-addon1" name="s" value=""></div>
+                        <div class="input-group"><input type="text" onkeyup="catalog.categorySearch()" class="form-control no-request" placeholder="Поиск" aria-describedby="basic-addon1" name="s" value=""></div>
+                    </div>
+                    <div class="col-md-10 col-md-offset-1" style="text-align:right;">
+                        <button type="button" class="btn btn-alert" onclick="javascript:page.submit({form:'#catalog_remove'})">Удалить</button>
+                        <button type="button" class="btn btn-primary" onclick="javascript:page.submit({form:'#catalog'})">Сохранить</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
                     </div>
                     <div class="col-md-10 col-md-offset-1">
                         <ul class="nav nav-tabs">
@@ -66,9 +73,11 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-alert" onclick="javascript:page.submit({form:'#catalog_remove'})">Удалить</button>
-                <button type="button" class="btn btn-primary" onclick="javascript:page.submit({form:'#catalog'})">Сохранить</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                <div class="col-md-10 col-md-offset-1" style="text-align:right;">
+                    <button type="button" class="btn btn-alert" onclick="javascript:page.submit({form:'#catalog_remove'})">Удалить</button>
+                    <button type="button" class="btn btn-primary" onclick="javascript:page.submit({form:'#catalog'})">Сохранить</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
             </div>
         </div>
     </div>
@@ -103,9 +112,9 @@
             var dt = {
                 internal_id:id,
                 id:c,
-                copy:false
+                copy:($('.external[data-id='+c+']').find('.fa-caret-right,.fa-caret-down').length>0)
             };
-            dt.copy = confirm("Копировать структуру каталога поставщика");
+            // dt.copy = confirm("Копировать структуру каталога поставщика");
             $.ajax({
                 url:"/data/catalog/link",
                 dataType:"json",
@@ -322,7 +331,7 @@
             var catalogs = arguments.length?arguments[0]:Object.keys(catalog.selected)
                 goods = (arguments.length>1)?arguments[1]:((catalog.selected.goods)?Object.keys(catalog.selected.goods):[]),
                 $cont = $((arguments.length>2)?arguments[2]:".goods-name");
-            console.debug(catalog.selected);
+            console.debug("goodsfordownload:",goods.length);
             $.getJSON('/data/goodsfordownload',{catalog_id:catalogs},function(d,s,x){
                 var qty = d.quantity+goods.length;
                 $cont.html('('+qty+")");
@@ -330,10 +339,13 @@
         },
         drawcat:function(p){
             var s = '<li class="catalog-navigation-item" data-id="'+p.id+'">';//,c = (typeof p.goods != "undefined")?p.goods:0;
+            s+= (!$.isArray(p.childs))?'<i class="fa fa-caret-right"></i>&nbsp;':"";
             s+= (typeof(catalog.selected[p.id])!="undefined")
                 ?'<a href="javascript:catalog.check('+p.id+');" class="check-catalog catalog-checked" data-id="'+p.id+'"><i class="fa fa-check-square-o"></i></a>&nbsp;'
                 :'<a href="javascript:catalog.check('+p.id+');" class="check-catalog" data-id="'+p.id+'"><i class="fa fa-square-o"></i></a>&nbsp;';
-            s+= '<a href="javascript:catalog.expand('+p.id+')"><i class="catalog-title">'+p.title+'</i>&nbsp;<sup>'+(typeof(p.goods)!="undefined"?'('+p.goods+')':'')+'</sup></a>';
+            s+= '<a href="javascript:catalog.expand('+p.id+')"><i class="catalog-title">'+p.title+'</i>&nbsp;';
+
+            s+='<sup>'+(typeof(p.goods)!="undefined"?'('+p.goods+')':'')+'</sup></a>';
             s+= '</li>';
             return s;
         },
@@ -437,7 +449,7 @@
         drawcatSys:function(p){
             var s = '<li class="catalog-navigation-item" data-id="'+p.id+'">';//,c = (typeof p.goods != "undefined")?p.goods:0;
             s+= '<a href="javascript:catalog.edit('+p.id+');" data-id="'+p.id+'"><i class="fa fa-gear"></i>&nbsp;';
-            s+= (!$.isArray(p.childs))?'<i class="fa fa-caret-right"></i>&nbsp;':"";
+            s+= (p.childs.length)?'<i class="fa fa-caret-right"></i>&nbsp;':"";
             s+='</a>';
             s+= '<a href="javascript:catalog.expand('+p.id+')"><i class="catalog-title">'+p.title+'</i>&nbsp;<sup>'+(typeof(p.goods)!="undefined"?'('+p.goods+')':'')+'</sup></a>';
             s+= '<div id="catalog-raw-data-'+p.id+'" style="display:none;">'+JSON.stringify(p)+'</div>';
@@ -447,13 +459,29 @@
 
         listLoader:function(d){
             console.debug(d);
-            var container = arguments.length>1?arguments[1]:$("#js-container");
+            var container = arguments.length>1?arguments[1]:$("#js-container"),
+                jsonSort=function(a,b){
+
+                    var f1 = a.title.toLowerCase(),
+                        f2 = b.title.toLowerCase();
+                    console.debug("compare: ",f1,f2);
+                    return (f1>f2)?1:-1;
+                };
+            // if(container.attr("data-sort")=="alphabetic"){
+            //     var sorted = $(d).sort(jsonSort);
+            //     console.debug("sorted ",sorted);
+            // }
             var recursivecatalogs=function(d,ss){
                 var s = $('<ul class="catalog-navigation" style="display:none;"></ul>').appendTo(ss);
+                // if(container.attr("data-sort")=="alphabetic"){
+                //     var sorted = $(d).sort(jsonSort);
+                //     console.debug("sorted ",sorted);
+                // }
                 for(var i in d){
                     var p = d[i],ss = $(catalog.drawcatSys(p)).appendTo(s);
                     store.catalogs[i]=p;
-                    if(p.childs && !p.childs.length){
+                    console.debug(p.childs,(p.childs && p.childs.length).toString());
+                    if(p.childs && p.childs.length){
                         recursivecatalogs(p.childs,ss);
                     }
                 }
@@ -499,9 +527,9 @@
         page.noscroll = true;
         store.catalogs = {};
         store.categories = {};
-        $('.modal').on('hidden.bs.modal', function () {
-            console.debug('model window closed');
-            document.location.reload();
+        $('.modal').on('hidden.bs.modal', function (e) {
+            console.debug('model window closing',$(e.currentTarget).attr("class"));
+            if(document.location.href.match(/\/catalog$/i))document.location.reload();
         });
     });
 </script>

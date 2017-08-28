@@ -50,7 +50,7 @@
         </div>
         <div class="panel-body">
             <!-- <div id="js-container" class="col-md-4" data-ref="/data/catalogs"></div> -->
-            <div class="col-md-4 js-container catalog-container" data-ref="/data/catalogs" data-func="_contentLoader" data-scroll="false"></div>
+            <div class="col-md-4 js-container catalog-container" data-ref="/data/catalogs" data-func="_contentLoader" data-scroll="false" data-sort="alphabetic"></div>
             <div id="pageGoods" class="col-md-8 js-container goods-container-2" data-ref="/data/goodpage" data-func="goodsLoader" data-auto="false" data-scroll="false" data-paging="true"></div>
         </div>
     </div>

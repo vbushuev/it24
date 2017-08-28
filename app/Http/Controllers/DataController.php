@@ -328,26 +328,51 @@ class DataController extends Controller{
         return response()->json($s->get(),200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function catalogs(Request $rq){
-        $sel = DB::table("catalogs")->orderBy('parent_id','asc')->whereNull("parent_id")->get();
+        $sort = $rq->input("sort",false);
+        $sel = DB::table("catalogs")->whereNull("parent_id");
+        if($sort!==false)$sel=$sel->orderBy('title');
+
+        $rows=$sel->get();
         $res=[];
-        foreach ($sel as $r) {
+        foreach ($rows as $r) {
+            $rd = (array)$r;
+            $rd["childs"]=$this->recursiveCatalogs($r->id,$sort);
+            $rd["goods"]=DB::table("goods_categories")
+                                    ->join("categories",'categories.id','=','goods_categories.category_id')
+                                    ->join('catalogs','catalogs.id','=','categories.internal_id')
+                                    ->where("catalogs.id","=",$r->id)->count();
+            foreach ($rd["childs"] as $key => $value) $rd["goods"] +=$value["goods"];
+            $res[]=$rd;continue;
+            
             $res[$r->id] = (array)$r;
-            $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id);
+            $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id,$sort);
             $res[$r->id]["goods"]=DB::table("goods_categories")
                                     ->join("categories",'categories.id','=','goods_categories.category_id')
                                     ->join('catalogs','catalogs.id','=','categories.internal_id')
                                     ->where("catalogs.id","=",$r->id)->count();
             foreach ($res[$r->id]["childs"] as $key => $value) $res[$r->id]["goods"] +=$value["goods"];
         }
+        Log::debug(json_encode($res));
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
-    protected function recursiveCatalogs($id){
+    protected function recursiveCatalogs($id,$sort){
         if(empty($id)||is_null($id))return [];
         $res = [];
-        $rows = DB::table("catalogs")->orderBy('parent_id','asc')->where("parent_id",'=',$id)->get();
+        $sel = DB::table("catalogs")->orderBy('parent_id','asc')->where("parent_id",'=',$id);
+        if($sort!==false)$sel=$sel->orderBy('title','asc');
+        $rows = $sel->get();
         foreach ($rows as $r) {
+            $rd = (array)$r;
+            $rd["childs"]=$this->recursiveCatalogs($r->id,$sort);
+            $rd["goods"]=DB::table("goods_categories")
+                                    ->join("categories",'categories.id','=','goods_categories.category_id')
+                                    ->join('catalogs','catalogs.id','=','categories.internal_id')
+                                    ->where("catalogs.id","=",$r->id)->count();
+            foreach ($rd["childs"] as $key => $value) $rd["goods"] +=$value["goods"];
+            $res[]=$rd;continue;
+
             $res[$r->id] = (array)$r;
-            $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id);
+            $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id,$sort);
             $res[$r->id]["goods"]=DB::table("goods_categories")
                                     ->join("categories",'categories.id','=','goods_categories.category_id')
                                     ->join('catalogs','catalogs.id','=','categories.internal_id')
