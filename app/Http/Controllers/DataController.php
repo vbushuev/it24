@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use Log;
 use DB;
 use App\Schedule;
@@ -106,7 +105,7 @@ class DataController extends Controller{
                 'protocols.title as protocol'
             );
         $this->filters($rq,$sel);
-        $res = $sel->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
+        $res = $sel->orderBy("id")->offset($rq->input("f",0))->limit($rq->input("l",24))->get();
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function schedules(Request $rq){
@@ -343,7 +342,7 @@ class DataController extends Controller{
                                     ->where("catalogs.id","=",$r->id)->count();
             foreach ($rd["childs"] as $key => $value) $rd["goods"] +=$value["goods"];
             $res[]=$rd;continue;
-            
+
             $res[$r->id] = (array)$r;
             $res[$r->id]["childs"]=$this->recursiveCatalogs($r->id,$sort);
             $res[$r->id]["goods"]=DB::table("goods_categories")

@@ -122,7 +122,7 @@
                 goods = (p.goods==null)?[]:p.goods.split(',');
             s= '<div class="row item" data-rel="'+p.id+'">';
             s+= '<div class="col-md-2"><b>'+p.title+'</b></div>';
-            s+= '<div class="col-md-4"><div class="multirows"><i style="color:blue;">'+p.remote_srv.substr(0,32)+'...'+'</i></div></div>';
+            s+= '<div class="col-md-4"><div class="multirows"><i style="color:blue;">'+((p.remote_srv!=undefined)?p.remote_srv.substr(0,32)+'...':'')+'</i></div></div>';
             s+= '<div class="col-md-4"><div class="multirows catalogs-id">Товаров: <span class="goods-name-'+p.id+'"></span></div></div>';
             s+= '<div class="col-md-1"><div class="multirows">'+periodTranslate(p.period)+'</div></div>';
             s+= '<div class="col-md-1">';

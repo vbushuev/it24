@@ -52,10 +52,10 @@ class UploadsIT24 extends Command
             ->whereRaw('date_add(ifnull(schedules.last,date_add(now(),INTERVAL -10 DAY)),INTERVAL period MINUTE) <= now()')
             ->orWhereRaw('not exists(select 1 from upload_transactions where upload_transactions.status_id in (1) and upload_transactions.timestamp>date_add(now(),INTERVAL -schedules.period-30 MINUTE) and upload_transactions.schedule_id=schedules.id)')
             ->orderBy('schedules.last','asc');
-        Log::debug($select->toSql());
+        // Log::debug($select->toSql());
         $jobs = $select->get();
         foreach ($jobs as $job) {
-            //print_r($job);
+            print_r($job);
             DB::table('schedules')->where('id','=',$job->schedule_id)->update(['last'=>date('Y-m-d H:i:s')]);
             if(!in_array($job->protocol_id,[1]))continue;
             $job_id = DB::table('upload_transactions')->insertGetId(["schedule_id"=>$job->schedule_id,"supply_id"=>$job->supply_id,"status_id"=>1,"error_id"=>"0"]);

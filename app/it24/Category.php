@@ -15,7 +15,8 @@ class Category extends Common{
             $p = DB::table('categories')
                 ->where([['external_id','=',$this->external_parent_id],['supply_id','=',$this->supply_id]])
                 ->first();
-            $this->_properties["parent_id"] = $p->id;
+
+            $this->_properties["parent_id"] = is_null($p)?null:$p->id;
             //Log::debug("parent_id => ".$this->parent_id." was ".$this->external_parent_id);
         }
         else $this->_properties["parent_id"] = null;

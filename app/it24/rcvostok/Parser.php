@@ -1,5 +1,5 @@
 <?php
-namespace it24\utoys;
+namespace it24\rcvostok;
 use DB as DB;
 use Log as Log;
 use it24\Common as Common;
@@ -16,15 +16,13 @@ class Parser extends Common{
         $_done=(file_exists($_doneFile))?json_decode(file_get_contents($_doneFile),true):[];
         $job_id = $j["job_id"];
         $job = $j["job"];
-
         $cats = $xml->shop->categories->category;
-    
         if(!isset($cats)&&!is_null($cats)){
             Log::error("No data in ".$job->title." ".$job->link);
             throw new \Exception("no-categories",2);
         }
         foreach($cats as $category){
-
+            // print_r($category);exit;
             $a = [
                 "external_id" =>$category["id"]->__toString(),
                 "external_parent_id" =>isset($category["parentId"])?$category["parentId"]->__toString():null,

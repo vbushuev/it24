@@ -61,7 +61,7 @@ class Product extends Common{
         if($this->external_category_id>0){
             $this->getCatalog();
         }
-        $this->_properties["image"] = "S".str_pad($this->id, 10, "0", STR_PAD_LEFT).".".$pi['extension'];
+        $this->_properties["image"] = "S".str_pad($this->id, 10, "0", STR_PAD_LEFT).".".(isset($pi['extension'])?$pi['extension']:"jpg");
         //echo "CURRENT WORKING DIR \t".getcwd()."\n";
         $imgdir = file_exists("/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/")?"/home/a0124380/domains/a0124380.xsph.ru/public_html/public/img/":"/Applications/AMPPS/www/it24/public/img/";
         if(!file_exists($imgdir.$this->image))$this->loadImage($this->image_url,$imgdir.$this->image);
