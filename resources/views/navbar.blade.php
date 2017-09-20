@@ -49,6 +49,7 @@
                 @can('suppliers')
                 <li @if(isset($panel)&&($panel=='goods'))class="active"@endif><a href="/panel/catalog">Каталог\Товары @if(isset($panel)&&($panel=='goods'))<span class="sr-only">(current)</span>@endif</a></li>
                 @endcan
+                <li @if(isset($panel)&&($panel=='mygoods'))class="active"@endif><a href="/panel/mygoods">Мой Каталог @if(isset($panel)&&($panel=='mygoods'))<span class="sr-only">(current)</span>@endif</a></li>
                 <li class="dropdown">
 
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Настройки <span class="caret"></span></a>

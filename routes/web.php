@@ -22,6 +22,16 @@ Route::get('/panel/schedules', 'HomeController@schedules');
 Route::get('/panel/users', 'HomeController@users');
 Route::get('/panel/downloads', 'HomeController@downloads');
 Route::get('/panel/catalog', 'HomeController@catalog');
+
+Route::get('/panel/mygoods', 'ClientController@goods');
+Route::get('/user/data/goods', 'ClientController@getgoods');
+Route::get('/user/data/catalogs', 'ClientController@getcatalogs');
+Route::get('/user/data/catalog/add', 'ClientController@addcatalog');
+Route::get('/user/data/catalog/edit', 'ClientController@editcatalog');
+Route::get('/user/data/catalog/link', 'ClientController@linkcatalog');
+Route::get('/user/data/catalog/unlink', 'ClientController@unlinkcatalog');
+
+
 Route::get('/profile', 'HomeController@profile');
 Route::get('/support', 'HomeController@support');
 Route::post('/support', 'HomeController@support');

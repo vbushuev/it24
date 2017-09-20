@@ -42,38 +42,15 @@ class Parser extends Common{
         foreach ($prods as $item) {
             /*
             <offer id="1675250" available="true">
-                <url>http://utoy.ru/catalogs/in_stock/zhivotnye_na_r_u-18097/pingvin_na_r_u_27_5sm_kor_2051ru/</url>
-                <price>769.73</price>
-                <currencyId>RUR</currencyId>
-                <categoryId>18097</categoryId>
-                <picture>http://utoy.ru/upload/iblock/b3b/64cd97ab-d74c-11e2-bf01-005056987a0b.resize1.jpeg</picture>
-                <name>Пингвин на Р/У 27,5см. кор. 2051RU</name>
-                <description/>
-                <quantity>-5</quantity>
-                <param name="Бренд">Китай</param>
-                <param name="Производитель"/>
-                <param name="Напряжение"/>
-                <param name="Количество в коробке"/>
-                <param name="Материал"/>
-                <param name="Высота, см"/>
-                <param name="Длина, см"/>
-                <param name="Размер"/>
-                <param name="Упаковка"/>
-                <param name="Высота упаковки, см"/>
-                <param name="Остаток в пути">0</param>
-                <param name="Количество в коробке">24</param>
-                <param name="Упаковка"/>
-                <param name="Размер упаковки"/>
-                <param name="Длина упаковки, см"/>
-                <param name="ШтрихКод">2031862030001</param>
-                <param name="Артикул">T46-D173</param>
-                <param name="Производитель"/>
-                <param name="Химический состав"/>
-                <param name="Ширина упаковки, см"/>
-                <param name="Ширина, см"/>
-                <param name="Диаметр"/>
-                <param name="КодНоменклатуры">Н186203</param>
-                <param name="Количество деталей"/>
+                <categoryId>4281</categoryId>
+                <picture>http://static.rcvostok.ru/images/product/1/b/1/1b165244-fae5-11e5-9226-0cc47a018b6a/600x600_5e301415-9d0e-11e6-80ca-2c59e542282b.jpg</picture>
+                <name>Карнавальный аксессуар &quot;Крылья Фея Бабочка&quot; желтый</name>
+                <param name="price">118.15</param>
+                <param name="box">240</param>
+                <param name="brand">Серпантин</param>
+                <param name="quantity">68</param>
+                <param name="barcode">6931993616197</param>
+                <param name="material">пвх, пластик, текстиль</param>
             </offer>
             */
             $total++;
@@ -84,12 +61,12 @@ class Parser extends Common{
                 "supply_id"=>$job->supply_id,
                 "sid"=>$item["id"]->__toString(),
                 "sku"=>"",
-                "quantity"=>$item->quantity->__toString(),
+                "quantity"=>"",
                 "dateupdate"=>date("Y-m-d H:i:s"),
                 "external_category_id"=>$item->categoryId->__toString(),
                 "title"=>$item->name->__toString(),
                 "image_url"=>$item->picture->__toString(),
-                "amount"=>$item->price->__toString(),
+                "amount"=>"",
                 "pack"=>"",
                 "brand"=>"",
                 "barcode"=>"",
@@ -99,18 +76,19 @@ class Parser extends Common{
                 "weight"=>"",
                 "unit"=>"",
                 "certificate"=>"",
-                "description"=>$item->description->__toString()
+                "description"=>""
             ];
             foreach($item->param as $param){
-                if($param['name'] == 'Количество в коробке')$a["pack"]=$param->__toString();
-                else if($param['name'] == 'Бренд')$a["brand"]=$param->__toString();
-                else if($param['name'] == 'ШтрихКод')$a["barcode"]=$param->__toString();
-                else if($param['name'] == 'Длина, см')$a["depth"]=$param->__toString();
-                else if($param['name'] == 'Ширина, см')$a["width"]=$param->__toString();
-                else if($param['name'] == 'Высота, см')$a["height"]=$param->__toString();
-                else if($param['name'] == 'Артикул')$a["sku"]=$param->__toString();
+                if($param['name'] == 'box')$a["pack"]=$param->__toString();
+                else if($param['name'] == 'brand')$a["brand"]=$param->__toString();
+                else if($param['name'] == 'barcode')$a["barcode"]=$param->__toString();
+                else if($param['name'] == 'price')$a["amount"]=$param->__toString();
+                else if($param['name'] == 'quantity')$a["quantity"]=$param->__toString();
+                else if($param['name'] == 'material')$a["description"]=$param->__toString();
+                // else if($param['name'] == 'Артикул')$a["sku"]=$param->__toString();
             }
             $a["quantity"]=(intval($a["quantity"])<0)?-intval($a["quantity"]):intval($a["quantity"]);
+            print_r($a);
             $o = new Product($a,$job->price_add);
             $o->store();
             file_put_contents($_doneFile,json_encode($_done));

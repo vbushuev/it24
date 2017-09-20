@@ -12,7 +12,7 @@ function _contentLoader(d){
         s= '<div class="row item status-'+p.status+'" data-rel="'+p.id+'">';
         s+= '<div class="col-md-1">'+p.id+'</div>';
         s+= '<div class="col-md-2 '+p.status+'">'+status_ico+'<div class="error-message"><h5>'+p.error+'</h5>'+p.message+'</div></div>';
-        s+= '<div class="col-md-2"><div class="multirows">'+p.schedule_title+'<br />Клиент: <b style="float:right">'+p.name+'</b></div></div>';
+        s+= '<div class="col-md-2"><div class="multirows">'+p.title+'<br />Клиент: <b style="float:right">'+p.name+'</b></div></div>';
         s+= '<div class="col-md-2">'+p.timestamp.replace(/(\d{4})\-(\d{2})\-(\d{2})\s(\d{2}):(\d{2}):(\d{2})/,"$3.$2.$1")+'</div>';
         s+= '<div class="col-md-2"><div class="multirows">';
         s+= 'Начало:<b style="float:right;display:inline-block;">'+p.timestamp.replace(dateExp,"$4:$5:$6")+'</b><br/>'

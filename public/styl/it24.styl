@@ -134,7 +134,7 @@ a:hover .fa
     padding: 0;
     transition: all .4s ease-in;
     .catalog-navigation-item
-        padding: .2em;
+        padding: .2em 0 .2em .2em;
         position: relative;
         a
             text-decoration: none;
@@ -215,6 +215,48 @@ a:hover .fa
                     color: #3097d1;
         li.current
             border:solid 1px rgba(0,0,0,.2)
+.user-catalog-navigation-item a
+    text-decoration: none;
+    color: rgba(0,0,0,.8);
+    font-style: normal;
+.user-catalog-navigation-item
+    transition: all .2s ease-in;
+.user-catalog-navigation-item:hover
+    background-color: rgba(0,0,0,.2);
+.user-catalog
+    padding: .1em 0 .1em .1em;
+    position: relative;
+    a
+        text-decoration: none;
+        color rgba(0,0,0,.7);
+        font-style: normal;
+    a.selected
+        border: dotted 1px rgba(0,0,0,.5);
+    .catalog-title
+        font-wight: 100;
+    .catalog-title.catalog-checked
+        font-style: normal;
+        font-weight: 600;
+    .catalog-navigation
+        margin-left: 1em;
+    .catalog-goods-count
+        position: absolute;
+    .user-catalog-edit
+        margin-left: 8px;
+.user-good-link
+    position: absolute;
+    left: 8px;
+    top: 4px;
+.user-good-show
+    position: absolute;
+    right: 8px;
+    top: 4px;
+.user-good-show:hover,.user-good-link:hover
+    color:green;
+
+@media (min-width: 1200px)
+    .container
+        width: 98%;
 // .fade
 //     position: absolute;
 //     height:0;

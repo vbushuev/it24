@@ -405,7 +405,8 @@ var page={
         //         <li><a href="javascript:page.load(48);">3</a></li>
         //     </ul>
         //
-        var s = '<div class="paginator"><ul>',p = Math.ceil(c/l),u = Math.floor(((f==0)?1:f)/l)+1;
+        // var s = '<div class="paginator"><ul>',p = Math.ceil(c/l),u = Math.floor(((f==0)?1:f)/l)+1,max = (arguments.length>4)?((arguments[4]%2!=0)?arguments[4]-1:arguments[4]):6,start=u-max/2,end=u-max/2;
+        var s = '<div class="paginator"><ul>',p = Math.ceil(c/l),u = Math.floor(((f==0)?1:f)/l)+1,max = (arguments.length>4)?arguments[4]:6;
         console.debug("-----------------",container,f,l,c,p,u,"-----------------");
         if(p<6){
             for(var i = 1;i<=p;++i){
@@ -413,7 +414,7 @@ var page={
             }
         }
         else{
-            var start=u-3,end=u+3;
+            var start=u-(max/2),end=u+(max/2);
             if(start<=0){
                 end -=start;
                 start=1;
@@ -462,10 +463,18 @@ $(document).ready(function(){
         //console.debug('it24:filters-loaded');
     });
     // $(".modal").on('shown.bs.modal', function () {
-    $(".modal").on('hidden.bs.modal', function () {
-        console.debug("hidden.bs.modal:" + $(this));
-    });
-    $("[data-dismiss=modal]").on("click",function(){
-
+    $(".modal").on('hidden.bs.modal', function () {console.debug("hidden.bs.modal:" + $(this));});
+    $("[data-dismiss=modal]").on("click",function(){});
+    $(".draggable").draggable();
+    $(".droppable").each(function(){
+        var acpt = $(this).attr('data-accept'),props={};
+        if(acpt!=undefined)props['accept']= acpt;
+        props["drop"] = function( event, ui ) {
+            $( this )
+              .addClass( "ui-state-highlight" )
+              .find( "p" )
+                .html( "Dropped!" );
+        }
+        $(this).droppable(props);
     });
 });
