@@ -66,7 +66,9 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-4 js-container catalog-container" data-ref="/user/data/catalogs" data-func="UserCatalogLoader" data-scroll="false"></div>
-                        <div id="userGoods" class="col-md-8 js-container my-goods-container droppable" data-accept=".catalog-good-item" data-scroll="false" data-paging="true" data-ref="/user/data/goods" data-func="UserGoodLoader"></div>
+                        <div id="userGoods" class="col-md-8 js-container my-goods-container droppable" data-accept=".catalog-good-item" data-scroll="false" data-paging="true" data-ref="/user/data/goods" data-func="UserGoodLoader">
+                            
+                        </div>
                     </div>
 
                 </div>
@@ -75,7 +77,7 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <div id="pageCatalog" class="col-md-3 js-container catalog-container" data-ref="/data/catalogs" data-func="CategoryLoader" data-scroll="false" data-sort="alphabetic"></div>
+                    <div id="pageCatalog" class="col-md-3 js-container catalog-container" data-ref="/data/catalogs" data-func="CatalogLoader" data-scroll="false" data-sort="alphabetic"></div>
                     <div id="pageGoods" class="col-md-9 js-container" data-ref="/data/goodpage" data-func="GoodLoader" data-auto="false" data-scroll="false" data-paging="true"></div>
                 </div>
             </div>

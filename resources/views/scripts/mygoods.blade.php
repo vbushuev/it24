@@ -128,7 +128,7 @@
         $('#user_catalog [name=parent_id]').val(d.parent_id);
     }
     window.UserCatalogExpand = function (i){
-        var $t = $("a[data-id="+i+"]"),container=$("li[data-id="+i+"] > ul");
+        var $t = $(".user-catalog a[data-id="+i+"]"),container=$("li[data-id="+i+"] > ul");
         if(!$t.hasClass('selected')){
             $(".user-catalog a").removeClass('selected');
             $t.addClass('selected');
@@ -146,10 +146,6 @@
             $t.find(".fa-caret-right").removeClass("fa-caret-right").addClass("fa-caret-down");
             page.filters.data.user_catalog_id = i;
             page.load('#userGoods');
-            // page.filters.data.catalog_id.splice(0);
-            // var cc = catalog._recurseArray(store.catalogs[i],"childs","id");console.debug(cc);
-            // page.filters.data.catalog_id = catalog._recurseArray(store.catalogs[i],"childs","id");
-
         }
     };
     window.UserGoodLoader = function(data,container){
@@ -163,13 +159,14 @@
             s+= '<a href=\'javascript:window.UserGood.show('+JSON.stringify(p)+');\' class="user-good-show"><i class="fa fa-eye"></i></a>';
             s+= '</div>';
             $(s).appendTo(cc).draggable({ revert: true, helper: "clone" });
-        },paginator = page.paginator("#"+container.attr("id"),data.from,data.limit,data.count,4);;
-        container.append(paginator);
-        for(var i in data.data)draw(data.data[i],container);
-        container.append(paginator);
+        },paginator = page.paginator("#"+container.attr("id"),data.from,data.limit,data.count,4);
+        $('<div class="paginator-top"></div>').appendTo(container).append(paginator);
+        var ccc=$('<div class="data-container"></div>').appendTo(container);
+        for(var i in data.data)draw(data.data[i],ccc);
+        $('<div class="paginator-footer"></div>').appendTo(container).append(paginator);
     };
     window.UserCatalogGoodLink = function(i){
-        var uc = $(".user-catalog a.selected"),origin=$('.catalog-good-item[data-id='+i+']'),clone=origin.clone(),cont = $('#userGoods');
+        var uc = $(".user-catalog a.selected"),origin=$('.catalog-good-item[data-id='+i+']'),clone=origin.clone(),cont = $('#userGoods .data-container');
         if(uc.length==0){alert('Выберете каталог для добавления');return;}
         console.debug('animate: from '+origin.offset().top+':'+origin.offset().left+' to '+uc.offset().top+':'+uc.offset().left,'link good@'+i+' to usercatalog#'+uc.closest('.user-catalog').attr('data-id'));
         clone
@@ -234,7 +231,44 @@
         for(var i in data.data)draw(data.data[i],container);
         container.append(paginator);
     };
-
+    window.CatalogLoader = function(data,container){
+        var draw = function(p){
+            var s = '<li class="catalog-navigation-item draggable" data-id="'+p.id+'">';//,c = (typeof p.goods != "undefined")?p.goods:0;
+            s+= '<a href="javascript:CatalogExpand('+p.id+')">';
+            s+= (p.childs && p.childs.length)?'<i class="fa fa-caret-right"></i>&nbsp;':"";
+            s+= '<i class="catalog-title">'+p.title+'</i>&nbsp;<sup>'+(typeof(p.goods)!="undefined"?'('+p.goods+')':'')+'</sup></a>';
+            s+= '<div id="catalog-raw-data-'+p.id+'" style="display:none;">'+JSON.stringify(p)+'</div>';
+            s+= '</li>';
+            return s;
+        },recursivecatalogs=function(d,ss){
+            var s = $('<ul class="catalog-navigation" style="display:none;"></ul>').appendTo(ss);
+            for(var i in d){
+                var p = d[i],ss = $(draw(p)).appendTo(s);
+                if(p.childs && p.childs.length) recursivecatalogs(p.childs,ss);
+            }
+            return s;
+        };
+        recursivecatalogs(data,container).show();
+        window.page.noscroll = true;
+        return;
+    }
+    window.CatalogExpand=function(i){
+        var $t = $(".catalog-navigation-item[data-id="+i+"] a:first"),container=$("li[data-id="+i+"] > ul");
+        if($t.find(".fa").hasClass('catalog-expanded')){
+            container.hide();
+            $t.find(".fa").removeClass('catalog-expanded');
+            $t.find(".fa-caret-down").removeClass("fa-caret-down").addClass("fa-caret-right");
+            //page.filters.data.catalog_id.splice(page.filters.data.catalog_id.indexOf(i),1);
+            return;
+        }else {
+            container.show();
+            $t.find(".fa").addClass('catalog-expanded');
+            $t.find(".fa-caret-right").removeClass("fa-caret-right").addClass("fa-caret-down");
+            page.filters.data.catalog_id = [i];
+            page.load('#pageGoods');
+        }
+        return;
+    }
     var checkLock=false,catalog = {
         selected:{},
         currentid:"",
@@ -589,7 +623,7 @@
     };
     window.goodsLoader = catalog.goodsLoader;
     window.catalogLoader = catalog.catalogs;
-    window.CategoryLoader=catalog.listLoader;
+
     $(document).ready(function(){
         page.noscroll = true;
     });
