@@ -1,9 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
-    <div class="row">
-        @include('navbar')
-    </div>
+    
     <nav class="navbar navbar-default">
                 <div class="container-fluid">
                     <!-- Brand and toggle get grouped for better mobile display -->
@@ -67,7 +65,7 @@
                     <div class="row">
                         <div class="col-md-4 js-container catalog-container" data-ref="/user/data/catalogs" data-func="UserCatalogLoader" data-scroll="false"></div>
                         <div id="userGoods" class="col-md-8 js-container my-goods-container droppable" data-accept=".catalog-good-item" data-scroll="false" data-paging="true" data-ref="/user/data/goods" data-func="UserGoodLoader">
-                            
+
                         </div>
                     </div>
 
