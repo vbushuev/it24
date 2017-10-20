@@ -3,7 +3,7 @@
         <div class="modal-content">
             <input type="hidden" name="id" value="">
             <div class="modal-header">
-                <h5 class="modal-title">Наименование: <span class="supplier-title" id="title_"></span></h5>
+                <h5 class="modal-title">Создать каталог: <span class="supplier-title" id="title_"></span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
@@ -29,6 +29,11 @@
         add:function(row){
             this._store[row.id]=row;
             this.fillCombo(row);
+        },
+        delete:function(row){
+            $('[name=parent_id] option[value='+row.id+']').remove();
+            delete this._store[row.id];
+
         },
         fillCombo:function(row){
             var getlevel=function(p){
@@ -101,6 +106,7 @@
                 +((p.childs.length)?'<i class="fa fa-caret-right"></i>':"&nbsp;")
                 +'&nbsp;<i class="catalog-title">'+p.title+'</i>&nbsp;<sup>'+(typeof(p.goods)!="undefined"?'('+p.goods+')':'')+'</sup>';
             s+= '<a href=\'javascript:UserCatalogEdit('+JSON.stringify(p)+')\' class="user-catalog-edit"><i class="fa fa-gear"></i></a>';
+            s+= '<a href=\'javascript:UserCatalogDelete('+JSON.stringify(p)+')\' class="user-catalog-trash"><i class="fa fa-trash"></i></a>';
             s+= '</a>'
             s+= '</li>';
             return s;
@@ -122,17 +128,35 @@
         recursive(data,container).show();
     };
     window.UserCatalogEdit = function(d){
+        $('#user_catalog .modal-title').html('<h5 class="modal-title">Редактирование: <span class="supplier-title" id="title_"></span></h5>');
         $('#user_catalog').attr('data-rel','/user/data/catalog/edit').modal();
         $('#user_catalog [name=id]').val(d.id);
         $('#user_catalog [name=title]').val(d.title);
         $('#user_catalog [name=parent_id]').val(d.parent_id);
+        $('[name=parent_id] option').show();
+        $('[name=parent_id] option[value='+d.id+']').hide();
+    }
+    window.UserCatalogDelete = function(d){
+        var i = d.id,$t = $(".user-catalog[data-id="+d.id+"]");
+        if(confirm('Подтвердите удаление каталога '+$t.text())){
+            $.ajax({
+                url:'/user/data/catalog/delete',
+                data:{
+                    id:d.id
+                },
+                success:function(){
+                    $t.detach();
+                    UserCatalog.delete(d);
+                }
+            });
+        }
     }
     window.UserCatalogExpand = function (i){
         var $t = $(".user-catalog a[data-id="+i+"]"),container=$("li[data-id="+i+"] > ul");
         if(!$t.hasClass('selected')){
             $(".user-catalog a").removeClass('selected');
             $t.addClass('selected');
-
+            // $('.catalog-copy-all').removeClass('disabaled');
         }
         if($t.find(".fa").hasClass('catalog-expanded')){
             container.hide();
@@ -158,7 +182,7 @@
             s+= '<a href="javascript:UserCatalogGoodUnlink('+p.id+','+p.catalog_id+');" class="user-good-link"><i class="fa fa-trash"></i></a>';
             s+= '<a href=\'javascript:window.UserGood.show('+JSON.stringify(p)+');\' class="user-good-show"><i class="fa fa-eye"></i></a>';
             s+= '</div>';
-            $(s).appendTo(cc).draggable({ revert: true, helper: "clone" });
+            $(s).appendTo(cc);//.draggable({ revert: true, helper: "clone" });
         },paginator = page.paginator("#"+container.attr("id"),data.from,data.limit,data.count,4);
         $('<div class="paginator-top"></div>').appendTo(container).append(paginator);
         var ccc=$('<div class="data-container"></div>').appendTo(container);
@@ -200,6 +224,21 @@
             });
 
     }
+    window.UserCatalogCopy=function(){
+        var uc = $(".user-catalog a.selected"),c = $(".catalog-navigation-item a.selected");
+        // if(uc.length==0 || c.length==0){alert('Выберете каталог для копирования');return;}
+        if(c.length==0){alert('Выберете каталог для копирования');return;}
+        $.ajax({
+            url:'/user/data/catalog/copy',
+            data:{
+                user_catalog_id:(uc.length)?uc.attr('data-id'):'0',
+                catalog_id:c.closest('.catalog-navigation-item').attr('data-id')
+            },
+            success:function(d,x,s){
+                document.location.reload();
+            }
+        });
+    };
     window.UserCatalogGoodUnlink = function(i,c){
         var $t = $('.user-catalog-good[data-id='+i+']');
         $.ajax({
@@ -254,6 +293,11 @@
     }
     window.CatalogExpand=function(i){
         var $t = $(".catalog-navigation-item[data-id="+i+"] a:first"),container=$("li[data-id="+i+"] > ul");
+        if(!$t.hasClass('selected')){
+            $(".catalog-navigation-item a").removeClass('selected');
+            $t.addClass('selected');
+            $('.catalog-copy-all').removeClass('disabaled');
+        }
         if($t.find(".fa").hasClass('catalog-expanded')){
             container.hide();
             $t.find(".fa").removeClass('catalog-expanded');

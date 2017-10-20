@@ -243,6 +243,12 @@ a:hover .fa
         position: absolute;
     .user-catalog-edit
         margin-left: 8px;
+    .user-catalog-trash
+        margin-left: 8px;
+        display: none;
+.user-catalog:hover
+    .user-catalog-trash
+        display: inline-block;
 .user-good-link
     position: absolute;
     left: 8px;
@@ -253,15 +259,13 @@ a:hover .fa
     top: 4px;
 .user-good-show:hover,.user-good-link:hover
     color:green;
+.disabaled
+    pointer-events: none;
+    color:rgba(0,0,0,.3);
+.navbar-brand.logo-brand
+    font-size: 24px;
+    font-weight: 800;
 
 @media (min-width: 1200px)
     .container
         width: 98%;
-// .fade
-//     position: absolute;
-//     height:0;
-//     width: 0;
-// .fade.in
-//     height:100%;
-//     width:100%;
-    // position: auto;

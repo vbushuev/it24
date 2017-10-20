@@ -28,6 +28,8 @@ Route::get('/user/data/goods', 'ClientController@getgoods');
 Route::get('/user/data/catalogs', 'ClientController@getcatalogs');
 Route::get('/user/data/catalog/add', 'ClientController@addcatalog');
 Route::get('/user/data/catalog/edit', 'ClientController@editcatalog');
+Route::get('/user/data/catalog/delete', 'ClientController@deletecatalog');
+Route::get('/user/data/catalog/copy', 'ClientController@copycatalog');
 Route::get('/user/data/catalog/link', 'ClientController@linkcatalog');
 Route::get('/user/data/catalog/unlink', 'ClientController@unlinkcatalog');
 

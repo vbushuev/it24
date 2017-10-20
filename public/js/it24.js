@@ -447,6 +447,7 @@ var store={
     catalogs:null,
     suppliers:{}
 }
+
 $(document).ready(function(){
     page.filters.get.all();
     $(window).scroll(function () {
@@ -463,18 +464,18 @@ $(document).ready(function(){
         //console.debug('it24:filters-loaded');
     });
     // $(".modal").on('shown.bs.modal', function () {
-    $(".modal").on('hidden.bs.modal', function () {console.debug("hidden.bs.modal:" + $(this));});
-    $("[data-dismiss=modal]").on("click",function(){});
-    $(".draggable").draggable();
-    $(".droppable").each(function(){
-        var acpt = $(this).attr('data-accept'),props={};
-        if(acpt!=undefined)props['accept']= acpt;
-        props["drop"] = function( event, ui ) {
-            $( this )
-              .addClass( "ui-state-highlight" )
-              .find( "p" )
-                .html( "Dropped!" );
-        }
-        $(this).droppable(props);
-    });
+    // $(".modal").on('hidden.bs.modal', function () {console.debug("hidden.bs.modal:" + $(this));});
+    // $("[data-dismiss=modal]").on("click",function(){});
+    // $(".draggable").draggable();
+    // $(".droppable").each(function(){
+    //     var acpt = $(this).attr('data-accept'),props={};
+    //     if(acpt!=undefined)props['accept']= acpt;
+    //     props["drop"] = function( event, ui ) {
+    //         $( this )
+    //           .addClass( "ui-state-highlight" )
+    //           .find( "p" )
+    //             .html( "Dropped!" );
+    //     }
+    //     $(this).droppable(props);
+    // });
 });

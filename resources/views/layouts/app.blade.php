@@ -36,7 +36,7 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a class="navbar-brand" href="{{ url('/') }}">
+                    <a class="navbar-brand logo-brand" href="{{ url('/') }}">
                         {{ config('app.name', 'Laravel') }}
                     </a>
                 </div>
@@ -121,5 +121,31 @@
     @include('scripts.'.$panel)
     @endif
     <script src="{{ asset('js/it24.js') }}"></script>
+    <div class="modal" id="page_loading">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row" style="text-align:center;">
+                        <i class="fa fa-spin fa-2x fa-spinner"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--end .modal-->
+    <script>
+        var pageModalLoadingTimeout =false;
+        $( document ).ajaxSend(function() {
+            // $( ".log" ).text( "Triggered ajaxSend handler." );
+            if( pageModalLoadingTimeout===false)pageModalLoadingTimeout = setTimeout(function(){
+                $('#page_loading').modal();
+            },1200);
+
+        });
+        $( document ).ajaxComplete(function() {
+            clearTimeout(pageModalLoadingTimeout);
+            pageModalLoadingTimeout=false;
+            $('#page_loading').modal('hide');
+        });
+    </script>
 </body>
 </html>

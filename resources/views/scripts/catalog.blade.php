@@ -5,6 +5,7 @@
                 <input type="hidden" name="id" value="">
                 <div class="modal-header">
                     <h5 class="modal-title">Каталог товаров</h5>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Сохранить</button>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
@@ -401,9 +402,10 @@
                 $t.find(".fa:first").addClass('catalog-expanded');
                 $t.find(".fa-caret-right:first").removeClass("fa-caret-right").addClass("fa-caret-down");
                 page.filters.data.catalog_id.splice(0);
-                var cc = catalog._recurseArray(store.catalogs[i],"childs","id");console.debug(cc);
+                // var cc = catalog._recurseArray(store.catalogs[i],"childs","id");console.debug(cc);
                 page.filters.data.catalog_id = catalog._recurseArray(store.catalogs[i],"childs","id");
                 page.filters.data.category_id = catalog._recurseArray(store.categories[i],"childs","id");
+                console.debug('expand', page.filters.data.catalog_id);
                 catalog.container.show();
             }
 
@@ -411,8 +413,12 @@
             ($t.hasClass("external"))?page.loadpage(goodsPane,1):page.loadpage('#pageGoods',1);
         },
         clientCatalog:function(){
+            console.debug()
             $("#catalogs").modal();
             page.load("#pageGoods,#clientCatalogs");
+            $(document).on('page:loaded',function(e){
+                $('body').addClass('modal-open');
+            });
         },
         catalogs:function(t){
             //console.debug(t);
@@ -479,7 +485,7 @@
                 // }
                 for(var i in d){
                     var p = d[i],ss = $(catalog.drawcatSys(p)).appendTo(s);
-                    store.catalogs[i]=p;
+                    store.catalogs[p.id]=p;
                     // console.debug(p.childs,(p.childs && p.childs.length).toString());
                     if(p.childs && p.childs.length){
                         recursivecatalogs(p.childs,ss);
@@ -487,7 +493,7 @@
                 }
                 return s;
             };
-            store.catalogs = new Object();
+            store.catalogs = {};
             //$('<ul class="catalog-navigation"><a href="javascript:catalog.check(\'all\');" class="check-catalog-all" data-id="all"><i class="fa fa-square-o"></i></a>&nbsp;Все</ul>').appendTo(catalog.container);
             var f = recursivecatalogs(d,container);
             f.show();
@@ -512,6 +518,7 @@
         },
         _recurseArray:function(w,c,f){
             var r = [];
+            // console.debug("_recurseArray:",w,c,f);
             if(typeof(w)=="undefined")return r;
             if(typeof(w[f])!="undefined")r.push(w[f]);
             if(typeof(w[c])!="undefined")for(var i in w[c])r=r.concat(catalog._recurseArray(w[c][i],c,f));
@@ -528,8 +535,8 @@
         store.catalogs = {};
         store.categories = {};
         $('.modal').on('hidden.bs.modal', function (e) {
-            // console.debug('model window closing',$(e.currentTarget).attr("class"));
-            if(document.location.href.match(/\/catalog$/i))document.location.reload();
+            // console.debug('model window closing',);
+            if($(e.currentTarget).attr("id")!="page_loading" && document.location.href.match(/\/catalog$/i))document.location.reload();
         });
     });
 </script>
