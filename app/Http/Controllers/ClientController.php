@@ -34,41 +34,8 @@ class ClientController extends Controller{
         }
         return $res;
     }
-    protected function recursiveGetCatalogs($parent_id,$callable=null){
-        $catalogs = Catalog::where('parent_id',$parent_id)->get();
-        $res = [];
-        foreach($catalogs->toArray() as $cat){
-            $cat["childs"] = $this->recursiveGetCatalogs($cat["id"],$callable);
-            $res[]=$cat;
-            if(!is_null($callable) && is_callable($callable)) $callable([
-                "parent_id"=>(($parent_id===false)?'null':$parent_id),
-                "catalog"=>$cat
-            ]);
-        }
-        return $res;
-    }
-    protected function copyCatalog2UserCatalog($user,$userCatalogId,$catalogId){
-        $userCatalog = UserCatalog::find($userCatalogId);
-        $catalog = Catalog::find($catalogId);
-        $newUserCatalog = UserCatalog::create([
-            'user_id'=>$user->id,
-            'title'=>$catalog->title,
-            'parent_id'=>($userCatalogId==false)?'0':$userCatalog->id
-        ]);
-        $goods = DB::table('goods_categories')
-            ->join('categories','categories.id','=','goods_categories.category_id')
-            ->join('catalogs','catalogs.id','=','categories.internal_id')
-            ->where('catalogs.id','=',$catalog->id)
-            ->select('goods_categories.good_id')
-            ->get();
-        foreach ($goods as $good) {
-            UserCatalogGood::create([
-                'good_id'=>$good->good_id,
-                "user_catalog_id"=>$newUserCatalog->id
-            ]);
-        }
-        return $newUserCatalog;
-    }
+
+
     public function goods(Request $rq){
         $user = $rq->user();
         return view('pages.mygoods',['panel'=>'mygoods','user'=>$user]);
@@ -112,6 +79,28 @@ class ClientController extends Controller{
         ]);
         return response()->json($catalog,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
+    protected function copyCatalog2UserCatalog($user,$userCatalogId,$catalogId){
+        $userCatalog = UserCatalog::find($userCatalogId);
+        $catalog = Catalog::find($catalogId);
+        $newUserCatalog = UserCatalog::create([
+            'user_id'=>$user->id,
+            'title'=>$catalog->title,
+            'parent_id'=>($userCatalogId==false)?'0':$userCatalog->id
+        ]);
+        $goods = DB::table('goods_categories')
+            ->join('categories','categories.id','=','goods_categories.category_id')
+            ->join('catalogs','catalogs.id','=','categories.internal_id')
+            ->where('catalogs.id','=',$catalog->id)
+            ->select('goods_categories.good_id')
+            ->get();
+        foreach ($goods as $good) {
+            UserCatalogGood::create([
+                'good_id'=>$good->good_id,
+                "user_catalog_id"=>$newUserCatalog->id
+            ]);
+        }
+        return $newUserCatalog;
+    }
     public function copycatalog(Request $rq){
         $data = $rq->all();$res=[];
         $uc = $rq->input("user_catalog_id",false);
@@ -119,13 +108,38 @@ class ClientController extends Controller{
         if($cat != false ){
             $user = $rq->user();
             $newUserCatalog = $this->copyCatalog2UserCatalog($user,$uc,$cat);
-            $res=$this->recursiveGetCatalogs($cat,function($p)use($user,$newUserCatalog){
+            $links = [
+                $cat=>["id"=>$newUserCatalog->id,"name"=>$newUserCatalog->title]
+            ];
+            // $res=$this->recursiveGetCatalogs($cat);
+            // foreach($res as $ocat){
+            //     $parent = $this->copyCatalog2UserCatalog($user,$newUserCatalog->id,$ocat);
+            //     if($ocat)
+            // }
+            $res=$this->recursiveGetCatalogs($cat,function($p)use($user,$newUserCatalog,&$links){
+                Log::debug(json_encode($links,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
                 $cat = $p["catalog"]["id"];
-                $newUserCatalog = $this->copyCatalog2UserCatalog($user,$newUserCatalog->id,$cat);
+                $parent_id = $newUserCatalog->id;
+                if(isset($p["parent_id"]) && isset($links[$p["parent_id"]])) $parent_id = $links[$p["parent_id"]]["id"];
+                $userCatalog = $this->copyCatalog2UserCatalog($user,$parent_id,$cat);
+                $links[$cat]=["id"=>$userCatalog->id,"name"=>$userCatalog->title,"callback"=>$p];
             });
             // $ucg = UserCatalogGood::create($data);
         }
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
+    }
+    protected function recursiveGetCatalogs($parent_id,$callable=null){
+        $catalogs = Catalog::where('parent_id',$parent_id)->orderBy("id")->get();
+        $res = [];
+        foreach($catalogs->toArray() as $cat){
+            if(!is_null($callable) && is_callable($callable)) $callable([
+                "parent_id"=>(($parent_id===false)?'null':$parent_id),
+                "catalog"=>$cat
+            ]);
+            $cat["childs"] = $this->recursiveGetCatalogs($cat["id"],$callable);
+            $res[]=$cat;
+        }
+        return $res;
     }
     public function linkcatalog(Request $rq){
         $data = $rq->all();

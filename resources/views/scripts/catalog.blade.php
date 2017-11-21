@@ -227,6 +227,8 @@
                         ff = recursivecatalogs(ud,$tt,internal),
                         fff = recursivecatalogs(lo,$ttt,internal);
                     f.show();ff.show();fff.show();
+                    $('body').addClass('modal-open');
+
                 });
             });
         },

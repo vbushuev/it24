@@ -145,6 +145,7 @@
             clearTimeout(pageModalLoadingTimeout);
             pageModalLoadingTimeout=false;
             $('#page_loading').modal('hide');
+            if($('.modal:visible').length)$('body').addClass('modal-open');
         });
     </script>
 </body>
