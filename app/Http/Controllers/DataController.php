@@ -120,7 +120,9 @@ class DataController extends Controller{
         return response()->json($res,200,['Content-Type' => 'application/json; charset=utf-8'],JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     }
     public function scheduleedit(Request $rq){
+
         $d=$rq->all();
+        Log::debug($d);
         $res = Schedule::find($d["id"]);
         $res->fill($d);
         $res->save();

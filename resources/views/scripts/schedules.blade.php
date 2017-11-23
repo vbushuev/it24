@@ -25,6 +25,19 @@
                 </div>
 
                 <div class="row">
+
+                    <div class="col-md-10 col-md-offset-1">&nbsp;</div>
+                    <div class="col-md-1 col-md-offset-1">
+                        <input type="checkbox"  class="form-control mycatalog-chooser" aria-describedby="basic-addon5" onchange="useMyCatalog()">
+                        <input type="hidden" name="mycatalog" value="0">
+
+                    </div>
+                    <div class="col-md-10">
+                        Использовать "Мою структуру"
+                    </div>
+                    <div class="col-md-10 col-md-offset-1">&nbsp;</div>
+                </div>
+                <div class="row" id="catalog_choose">
                     <div class="col-md-10 col-md-offset-1">
                         <h4>Выбор товаров:</h4>
                     </div>
@@ -104,6 +117,7 @@
             //$(".goods-name").html('('+Object.keys(catalog.selected.goods).length+")");
             //$(".goods-name-list").html('<ul><li>'+Object.keys(catalog.selected.goods).join('</li><li>')+'</li></ul>');
         }
+        useMyCatalog(p.mycatalog);
         catalog.goodsfordownload();
         $('#add_schedule .modal-footer button.btn-primary').html('Обновить');
 
@@ -136,9 +150,19 @@
             gfd(catalogs,goods,".goods-name-"+p.id);
         }
     }
-
+    function useMyCatalog(){
+        if(arguments.length){
+            if(arguments[0] == '1'){$('#catalog_choose').hide();$('[name=mycatalog]').val('1');$('.mycatalog-chooser').attr('checked',true);}
+            else {$('#catalog_choose').show();$('[name=mycatalog]').val('0');$('.mycatalog-chooser').attr('checked',false);}
+        }
+        else {
+            if($('#catalog_choose:visible').length){$('#catalog_choose').hide();$('[name=mycatalog]').val('1');}
+            else {$('#catalog_choose').show();$('[name=mycatalog]').val('0');}
+        }
+    }
     $(document).ready(function(){
         page.noscroll = true;
+        // catalog.clientCatalog();
         /*window.page.filters.filter.catalogs = function(t){
             var t = $(t).next(".submenu"),n=$(".catalogs-name"),v=$("input[name=catalogs]");
             console.debug("reinjected function for ["+t.attr("data-id")+"]"+t.text());

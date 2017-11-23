@@ -37,7 +37,8 @@ class Product extends Common{
                 "description" => $this->description,
                 "pack"=>$this->pack,
                 "price"=>$amount,
-                "updated_at"=>date("Y-m-d H:i:s")
+                "updated_at"=>date("Y-m-d H:i:s"),
+                "quantity" => $this->quantity
             ]);
         }
         else{
@@ -48,7 +49,7 @@ class Product extends Common{
             $ins["price"] = $amount;
             unset($ins["external_category_id"]);
             unset($ins["image_url"]);
-            unset($ins["quantity"]);
+            // unset($ins["quantity"]);
             unset($ins["amount"]);
             unset($ins["brand"]);
             unset($ins["schedule_id"]);

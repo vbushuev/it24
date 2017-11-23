@@ -39,12 +39,6 @@
                     </ul>
                 </li>-->
             </ul>
-            <!--<form class="navbar-form navbar-left">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search">
-                </div>
-                <button type="submit" class="btn btn-default">Submit</button>
-            </form>-->
             <ul class="nav navbar-nav navbar-right">
                 @can('suppliers')
                 <li @if(isset($panel)&&($panel=='goods'))class="active"@endif><a href="/panel/catalog">Каталог\Товары @if(isset($panel)&&($panel=='goods'))<span class="sr-only">(current)</span>@endif</a></li>

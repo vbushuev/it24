@@ -4,6 +4,8 @@ use DB;
 use Log;
 use App\GoodAdds;
 use App\Supplier;
+use App\UserCatalog;
+use App\User;
 class Exporter{
     protected $catalogs=[];
     protected $products=[];
@@ -12,7 +14,41 @@ class Exporter{
     public function __construct($job){
         $this->job = $job;
     }
+    protected function getmycatalog($user){
+        $this->catalogs = UserCatalog::where('user_id','=',$user->id)->get();
+        $db = DB::table('goods')
+            ->join('brands','brands.id','=','goods.brand_id')
+            ->join('user_catalog_goods','goods.id','=','user_catalog_goods.good_id')
+            ->join('user_catalogs','user_catalogs.id','=','user_catalog_goods.user_catalog_id')
+            ->select('goods.id',
+                'goods.image',
+                DB::raw("ifnull(goods.sku,'') as sku"),
+                DB::raw("ifnull(goods.title,'') as title"),
+                DB::raw("ifnull(goods.barcode,'') as barcode"),
+                DB::raw("ifnull(goods.width,'') as width"),
+                DB::raw("ifnull(goods.height,'') as height"),
+                DB::raw("ifnull(goods.weight,'') as weight"),
+                DB::raw("ifnull(goods.depth,'') as depth"),
+                DB::raw("ifnull(goods.unit,'') as unit"),
+                DB::raw("ifnull(goods.certificate,'') as certificate"),
+                DB::raw("ifnull(goods.description,'') as description"),
+                DB::raw("ifnull(goods.pack,'') as pack"),
+                DB::raw("ifnull(goods.price,'') as price"),
+                DB::raw("ifnull(goods.updated_at,'') as updated_at"),
+                'user_catalogs.id as catalog_id',
+                'brands.title as brand',
+                DB::raw("ifnull(goods.quantity,'0') as quantity")
+            )->where('user_catalogs.user_id','=',$user->id);
+        $this->products = $db->get();
+        Log::debug("catalogs = ".count($this->catalogs)." products=".count($this->products));
+        return;
+    }
     protected function get($c=[],$p=[]){
+        $user = User::find($this->job->user_id);
+        Log::debug("IS mycatalog = ".$this->job->mycatalog);
+        if($user!=false && $this->job->mycatalog=="1"){
+            return $this->getmycatalog($user);
+        }
         $db = DB::table('catalogs');
         if(!empty($c) && !is_null($c) && strtolower($c)!="null"){
             if(!is_array($c))$c=preg_split("/,/m",$c);
@@ -187,6 +223,20 @@ class Exporter{
             $this->recursiveCatalogs($r->id,$res);
         }
         return;
+    }
+    protected function recursiveMyCatalog($user,$id,&$res){
+        $catalogs = UserCatalog::where('user_id','=',$user->id)->where('parent_id',$parent_id)->get();
+        $res = [];
+        foreach($catalogs->toArray() as $cat){
+            $cat["childs"] = $this->recursiveGetUserCatalogs($user,$cat["id"]);
+            $res[]=$cat;
+            if(!is_null($callable) && is_callable($callable)) $callable([
+                "user"=>$user,
+                "parent_id"=>$parent_id,
+                "catalog"=>$cat
+            ]);
+        }
+        return $res;
     }
 };
 ?>
